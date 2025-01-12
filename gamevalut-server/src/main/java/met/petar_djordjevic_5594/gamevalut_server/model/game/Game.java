@@ -55,6 +55,8 @@ public class Game {
     private List<GameSystemRequirements> systemRequirements;
     @ManyToMany(mappedBy = "games", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Genre> genres = new ArrayList<>();
+    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<GameImage> images = new ArrayList<>();
 
     public Game() {
     }
@@ -110,5 +112,13 @@ public class Game {
 
     public void setNumberOfAcquisitions(BigInteger numberOfAcquisitions) {
         this.numberOfAcquisitions = numberOfAcquisitions;
+    }
+
+    public List<GameImage> getImages() {
+        return images;
+    }
+
+    public void setImages(List<GameImage> images) {
+        this.images = images;
     }
 }

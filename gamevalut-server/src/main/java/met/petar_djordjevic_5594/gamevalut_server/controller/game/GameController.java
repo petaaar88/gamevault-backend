@@ -44,5 +44,13 @@ public class GameController {
         gameService.addSystemRequirements(gameId, type, gameSystemRequirementsDTO);
     }
 
+    @PostMapping("/{gameId}/image")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void addImage(@PathVariable("gameId") Integer gameId, @Valid @RequestBody NewGameImageDTO newGameImageDTO) {
+
+        gameService.addImage(gameId,newGameImageDTO);
+
+    }
+
 
 }

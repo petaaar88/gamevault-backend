@@ -88,6 +88,43 @@ public class GameService {
 
     }
 
+    public void addImage(Integer gameId, NewGameImageDTO newGameImageDTO) {
+
+        GameImageType imageType;
+
+        if (newGameImageDTO.type().equalsIgnoreCase("Catalog")){
+            imageType = GameImageType.Catalog;
+        }
+        else if (newGameImageDTO.type().equalsIgnoreCase("Product_Page")) {
+            imageType = GameImageType.Product_Page;
+        } else if (newGameImageDTO.type().equalsIgnoreCase("Icon")) {
+            imageType = GameImageType.Icon;
+        } else if (newGameImageDTO.type().equalsIgnoreCase("Library")) {
+            imageType = GameImageType.Library;
+        } else {
+
+            //TODO: logika za
+            //obrisi ovo
+            imageType = GameImageType.Icon;
+        }
+
+        Optional<Game> optionalGame = gameRepository.findById(gameId);
+
+        if (optionalGame.isEmpty()) {
+            //TODO: Logika za exceptoin
+        }
+
+        GameImage gameImage = new GameImage(imageType, newGameImageDTO.url());
+
+        gameImage.setGame(optionalGame.get());
+
+        optionalGame.get().getImages().add(gameImage);
+
+        gameRepository.save(optionalGame.get());
+
+    }
+
+
     public Optional<Game> getById(Integer gameId) {
         return gameRepository.findById(gameId);
     }
@@ -97,7 +134,9 @@ public class GameService {
         return new Game(newGameDTO.description(), newGameDTO.developer(), newGameDTO.downloadUrl(), newGameDTO.releaseDate(), newGameDTO.title());
     }
 
-    public GameSystemRequirements convertSystemRequirementsToEntity(GameSystemRequirementsDTO gameSystemRequirementsDTO, GameSystemRequirementsType type) {
+    public GameSystemRequirements convertSystemRequirementsToEntity(GameSystemRequirementsDTO
+                                                                            gameSystemRequirementsDTO, GameSystemRequirementsType type) {
         return new GameSystemRequirements(gameSystemRequirementsDTO.cpu(), gameSystemRequirementsDTO.gpu(), gameSystemRequirementsDTO.expectedStorage(), gameSystemRequirementsDTO.storage(), gameSystemRequirementsDTO.operatingSystem(), gameSystemRequirementsDTO.ram(), type);
     }
+
 }
