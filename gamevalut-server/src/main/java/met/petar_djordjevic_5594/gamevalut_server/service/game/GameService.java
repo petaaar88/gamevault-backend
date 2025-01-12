@@ -1,8 +1,10 @@
 package met.petar_djordjevic_5594.gamevalut_server.service.game;
 
+import met.petar_djordjevic_5594.gamevalut_server.model.customUser.AcquiredGameCopy;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.CustomUser;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.NewCustomUserDTO;
 import met.petar_djordjevic_5594.gamevalut_server.model.game.*;
+import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.ICustomUserRepository;
 import met.petar_djordjevic_5594.gamevalut_server.repository.game.IGameRepository;
 import met.petar_djordjevic_5594.gamevalut_server.repository.game.IGameSystemRequirementsRepository;
 import met.petar_djordjevic_5594.gamevalut_server.repository.game.IGenreRepository;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -22,6 +25,8 @@ public class GameService {
     IGenreRepository genreRepository;
     @Autowired
     IGameRepository gameRepository;
+    @Autowired
+    ICustomUserRepository userRepository;
 
     public GameService() {
     }
@@ -124,6 +129,32 @@ public class GameService {
 
     }
 
+    public void addGameToUserCollection(Integer userId, Integer gameId){
+        Optional<CustomUser> optionalUser = userRepository.findById(userId);
+        Optional<Game> optionalGame = gameRepository.findById(userId);
+
+        if(optionalGame.isEmpty()){
+            //TODO: uraditi exception za nevalidan id igre
+        }
+
+        if(optionalUser.isEmpty()){
+            //TODO: uraditi exception za nevalidan id korisnika
+
+        }
+
+        //TODO: Dodaj logiku koja zabranjuje da se ponovo doda igra u korinsikovu kolekciju
+
+        AcquiredGameCopy acquiredGameCopy = new AcquiredGameCopy();
+
+        acquiredGameCopy.setUser(optionalUser.get());
+        acquiredGameCopy.setAcquisitionDate(LocalDate.now());
+        acquiredGameCopy.setGame(optionalGame.get());
+        acquiredGameCopy.setTimePlayed(BigInteger.ZERO);
+
+        optionalGame.get().getAcquiredGameCopies().add(acquiredGameCopy);
+
+        gameRepository.save(optionalGame.get());
+    }
 
     public Optional<Game> getById(Integer gameId) {
         return gameRepository.findById(gameId);

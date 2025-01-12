@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import met.petar_djordjevic_5594.gamevalut_server.model.country.Country;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity(name = "user")
 public class CustomUser {
@@ -34,6 +36,8 @@ public class CustomUser {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "country_id", nullable = false)
     private Country country;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<AcquiredGameCopy> acquiredGameCopies = new ArrayList<>();
 
     public CustomUser() {
     }

@@ -1,6 +1,7 @@
 package met.petar_djordjevic_5594.gamevalut_server.model.game;
 
 import jakarta.persistence.*;
+import met.petar_djordjevic_5594.gamevalut_server.model.customUser.AcquiredGameCopy;
 
 import java.math.BigInteger;
 import java.time.LocalDate;
@@ -57,6 +58,8 @@ public class Game {
     private List<Genre> genres = new ArrayList<>();
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<GameImage> images = new ArrayList<>();
+    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<AcquiredGameCopy> acquiredGameCopies = new ArrayList<>();
 
     public Game() {
     }
@@ -120,5 +123,13 @@ public class Game {
 
     public void setImages(List<GameImage> images) {
         this.images = images;
+    }
+
+    public List<AcquiredGameCopy> getAcquiredGameCopies() {
+        return acquiredGameCopies;
+    }
+
+    public void setAcquiredGameCopies(List<AcquiredGameCopy> acquiredGameCopies) {
+        this.acquiredGameCopies = acquiredGameCopies;
     }
 }
