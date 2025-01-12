@@ -41,12 +41,23 @@ public class GameSystemRequirements {
             name = "type",
             nullable = false
     )
+    @Enumerated(EnumType.STRING)
     private GameSystemRequirementsType type;
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "game_id", nullable = false)
     private Game game;
 
     public GameSystemRequirements() {
+    }
+
+    public GameSystemRequirements(String cpu, String gpu, Integer expectedStorage, Integer storage, String operatingSystem, Integer ram, GameSystemRequirementsType type) {
+        this.cpu = cpu;
+        this.gpu = gpu;
+        this.expectedStorage = expectedStorage;
+        this.storage = storage;
+        this.operatingSystem = operatingSystem;
+        this.ram = ram;
+        this.type = type;
     }
 
     public Integer getId() {

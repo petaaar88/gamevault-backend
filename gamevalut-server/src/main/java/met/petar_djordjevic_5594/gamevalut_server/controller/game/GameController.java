@@ -1,11 +1,17 @@
 package met.petar_djordjevic_5594.gamevalut_server.controller.game;
 
+import jakarta.validation.Valid;
+import jakarta.websocket.server.PathParam;
+import met.petar_djordjevic_5594.gamevalut_server.model.game.*;
 import met.petar_djordjevic_5594.gamevalut_server.service.game.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
+@RequestMapping("/games")
 public class GameController {
 
     @Autowired
@@ -14,13 +20,29 @@ public class GameController {
     public GameController() {
     }
 
-    @PostMapping("/genre")
-    private void create(){
-        gameService.addGenre();
+    @PostMapping("")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createGame(@Valid @RequestBody NewGameDTO newGameDTO) {
+        gameService.addGame(gameService.convertToEntity(newGameDTO));
     }
 
-    @PostMapping("/addGames")
-    private void createAt(){
-        gameService.addGame();
+    @PostMapping("/genres")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createGenre(@Valid @RequestBody NewGenreDTO newGenreDTO) {
+        gameService.addGenre(new Genre(newGenreDTO.name()));
     }
+
+    @PostMapping("/{gameId}/genres/{genreId}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void addGenreToGame(@PathVariable("gameId") Integer gameId, @PathVariable("genreId") Integer genreId) {
+        gameService.addGenreToGame(gameId, genreId);
+    }
+
+    @PostMapping("/{gameId}/system-requirements")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void addSystemRequirements(@PathVariable("gameId") Integer gameId, @RequestParam("type") String type, @Valid @RequestBody GameSystemRequirementsDTO gameSystemRequirementsDTO) {
+        gameService.addSystemRequirements(gameId, type, gameSystemRequirementsDTO);
+    }
+
+
 }

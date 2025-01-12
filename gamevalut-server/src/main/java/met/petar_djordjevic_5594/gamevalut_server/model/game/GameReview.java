@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity(name = "game_review")
-public class GameRevies {
+public class GameReview {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -14,6 +14,7 @@ public class GameRevies {
             nullable = false
     )
     private String content;
+    @Enumerated(EnumType.STRING)
     @Column(
             name = "rating",
             nullable = false
@@ -25,6 +26,6 @@ public class GameRevies {
     )
     private LocalDate postedAt;
 
-    public GameRevies() {
+    public GameReview() {
     }
 }
