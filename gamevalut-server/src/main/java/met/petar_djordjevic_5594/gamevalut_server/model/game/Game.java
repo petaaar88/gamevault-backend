@@ -1,7 +1,6 @@
 package met.petar_djordjevic_5594.gamevalut_server.model.game;
 
 import jakarta.persistence.*;
-import met.petar_djordjevic_5594.gamevalut_server.model.customUser.AcquiredGameCopy;
 
 import java.math.BigInteger;
 import java.time.LocalDate;
@@ -131,5 +130,21 @@ public class Game {
 
     public void setAcquiredGameCopies(List<AcquiredGameCopy> acquiredGameCopies) {
         this.acquiredGameCopies = acquiredGameCopies;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

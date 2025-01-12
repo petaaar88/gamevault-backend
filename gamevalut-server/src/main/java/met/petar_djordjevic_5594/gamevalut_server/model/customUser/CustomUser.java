@@ -2,6 +2,7 @@ package met.petar_djordjevic_5594.gamevalut_server.model.customUser;
 
 import jakarta.persistence.*;
 import met.petar_djordjevic_5594.gamevalut_server.model.country.Country;
+import met.petar_djordjevic_5594.gamevalut_server.model.game.AcquiredGameCopy;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

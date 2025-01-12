@@ -1,7 +1,7 @@
-package met.petar_djordjevic_5594.gamevalut_server.model.customUser;
+package met.petar_djordjevic_5594.gamevalut_server.model.game;
 
 import jakarta.persistence.*;
-import met.petar_djordjevic_5594.gamevalut_server.model.game.Game;
+import met.petar_djordjevic_5594.gamevalut_server.model.customUser.CustomUser;
 
 import java.math.BigInteger;
 import java.time.LocalDate;
@@ -33,6 +33,8 @@ public class AcquiredGameCopy {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private CustomUser user;
+    @OneToOne(mappedBy = "acquiredGameCopy")
+    private GameReview gameReview;
 
     public AcquiredGameCopy() {
     }
@@ -83,5 +85,13 @@ public class AcquiredGameCopy {
 
     public void setUser(CustomUser user) {
         this.user = user;
+    }
+
+    public GameReview getGameReview() {
+        return gameReview;
+    }
+
+    public void setGameReview(GameReview gameReview) {
+        this.gameReview = gameReview;
     }
 }

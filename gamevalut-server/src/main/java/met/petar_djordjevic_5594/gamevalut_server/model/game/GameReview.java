@@ -25,7 +25,50 @@ public class GameReview {
             nullable = false
     )
     private LocalDate postedAt;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "users_games_id", referencedColumnName = "id")
+    private AcquiredGameCopy acquiredGameCopy;
 
     public GameReview() {
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public GameRating getRating() {
+        return rating;
+    }
+
+    public void setRating(GameRating rating) {
+        this.rating = rating;
+    }
+
+    public LocalDate getPostedAt() {
+        return postedAt;
+    }
+
+    public void setPostedAt(LocalDate postedAt) {
+        this.postedAt = postedAt;
+    }
+
+    public AcquiredGameCopy getAcquiredGameCopy() {
+        return acquiredGameCopy;
+    }
+
+    public void setAcquiredGameCopy(AcquiredGameCopy acquiredGameCopy) {
+        this.acquiredGameCopy = acquiredGameCopy;
     }
 }
