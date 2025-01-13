@@ -147,4 +147,60 @@ public class Game {
     public void setTitle(String title) {
         this.title = title;
     }
+
+    public String getDeveloper() {
+        return developer;
+    }
+
+    public void setDeveloper(String developer) {
+        this.developer = developer;
+    }
+
+    public GameRating getOverallRating() {
+        return overallRating;
+    }
+
+    public void setOverallRating(GameRating overallRating) {
+        this.overallRating = overallRating;
+    }
+
+    public Integer getOverallRatingPercentage() {
+        return overallRatingPercentage;
+    }
+
+    public void setOverallRatingPercentage(Integer overallRatingPercentage) {
+        this.overallRatingPercentage = overallRatingPercentage;
+    }
+
+    public LocalDate getDeploymentDate() {
+        return deploymentDate;
+    }
+
+    public void setDeploymentDate(LocalDate deploymentDate) {
+        this.deploymentDate = deploymentDate;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getDownloadUrl() {
+        return downloadUrl;
+    }
+
+    public void setDownloadUrl(String downloadUrl) {
+        this.downloadUrl = downloadUrl;
+    }
+
+    public LocalDate getReleaseDate() {
+        return releaseDate;
+    }
+
+    public void setReleaseDate(LocalDate releaseDate) {
+        this.releaseDate = releaseDate;
+    }
 }

@@ -2,6 +2,7 @@ package met.petar_djordjevic_5594.gamevalut_server.controller.game;
 
 import jakarta.validation.Valid;
 import met.petar_djordjevic_5594.gamevalut_server.exception.ResourceNotFoundException;
+import met.petar_djordjevic_5594.gamevalut_server.model.customUser.FriendDTO;
 import met.petar_djordjevic_5594.gamevalut_server.model.game.*;
 import met.petar_djordjevic_5594.gamevalut_server.service.game.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -24,6 +27,48 @@ public class GameController {
     GameService gameService;
 
     public GameController() {
+    }
+
+    @GetMapping("")
+    @ResponseStatus(HttpStatus.OK)
+    public List<GameOverviewDTO> getAll(@RequestParam(defaultValue = "1") Integer page,
+                                        @RequestParam(defaultValue = "10") Integer size) {
+        //TODO: uradi paginaciju
+        return gameService.getAll();
+    }
+
+    @GetMapping("/{id}/pp-images")
+    @ResponseStatus(HttpStatus.OK)
+    public Map<String,List<GameProductPageImage>> getAllProductPageImages(@PathVariable("id") Integer gameId){
+        Map<String, List<GameProductPageImage>> images = new HashMap<>();
+        images.put("images",gameService.getProductPageImages(gameId));
+        return images;
+    }
+
+    @GetMapping("/{id}/description")
+    @ResponseStatus(HttpStatus.OK)
+    public GameDescriptionDTO getGameDescription(@PathVariable("id") Integer gameId){
+        return gameService.getDescription(gameId);
+    }
+
+    @GetMapping("/{id}/download")
+    @ResponseStatus(HttpStatus.OK)
+    public String getDownloadURL(@PathVariable("id") Integer gameId){
+        return gameService.getDownloadURL(gameId);
+    }
+
+    @GetMapping("/{gameId}/{userId}/friends")
+    @ResponseStatus(HttpStatus.OK)
+    public List<FriendDTO> getFriendThatOwnGame(@PathVariable("gameId") Integer gameId, @PathVariable("userId") Integer userId){
+
+        //TODO: Proveri da li radi
+        return gameService.getFriendsThatOwnGame(gameId, userId);
+    }
+
+    @GetMapping("/{id}/system-requirements")
+    @ResponseStatus(HttpStatus.OK)
+    public GameSystemRequirementsDTO getSystemRequirements(@PathVariable("id") Integer gameId){
+        return gameService.getSystemRequirementsForGame(gameId);
     }
 
     @PostMapping("")
@@ -46,16 +91,14 @@ public class GameController {
 
     @PostMapping("/{gameId}/system-requirements")
     @ResponseStatus(HttpStatus.CREATED)
-    public void addSystemRequirements(@PathVariable("gameId") Integer gameId, @RequestParam("type") String type, @Valid @RequestBody GameSystemRequirementsDTO gameSystemRequirementsDTO) {
-        gameService.addSystemRequirements(gameId, type, gameSystemRequirementsDTO);
+    public void addSystemRequirements(@PathVariable("gameId") Integer gameId, @RequestParam("type") String type, @Valid @RequestBody NewGameSystemRequirementsDTO newGameSystemRequirementsDTO) {
+        gameService.addSystemRequirements(gameId, type, newGameSystemRequirementsDTO);
     }
 
     @PostMapping("/{gameId}/image")
     @ResponseStatus(HttpStatus.CREATED)
     public void addImage(@PathVariable("gameId") Integer gameId, @Valid @RequestBody NewGameImageDTO newGameImageDTO) {
-
         gameService.addImage(gameId, newGameImageDTO);
-
     }
 
     @PostMapping("/{gameId}/{userId}")
@@ -68,8 +111,8 @@ public class GameController {
     @ResponseStatus(HttpStatus.CREATED)
     public void addReview(@PathVariable("gameId") Integer gameId, @PathVariable("userId") Integer userId, @Valid @RequestBody NewGameReviewDTO newGameReviewDTO) {
         gameService.addReview(userId, gameId, newGameReviewDTO);
-
     }
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
@@ -93,21 +136,28 @@ public class GameController {
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFoundException ex){
+    public ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFoundException ex) {
         Map<String, Object> body = new HashMap<>();
 
         body.put("message", ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<Object> handleNoSuchElementException(NoSuchElementException ex){
+    public ResponseEntity<Object> handleNoSuchElementException(NoSuchElementException ex) {
+        Map<String, Object> body = new HashMap<>();
+
+        body.put("message", ex.getMessage());
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    }
+
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Object> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
         Map<String, Object> body = new HashMap<>();
 
         body.put("message", ex.getMessage());
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
-
-
 
 }

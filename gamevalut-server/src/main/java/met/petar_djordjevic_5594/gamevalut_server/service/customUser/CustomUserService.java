@@ -10,12 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
 public class CustomUserService {
     @Autowired
-    ICustomUserRepository customUserRepository;
+    ICustomUserRepository userRepository;
     @Autowired
     IFriendshipRepository friendshipRepository;
     @Autowired
@@ -28,7 +31,7 @@ public class CustomUserService {
     }
 
     public void addUser(CustomUser newUser) {
-        customUserRepository.save(newUser);
+        userRepository.save(newUser);
     }
 
     public void addUser(NewCustomUserDTO newCustomUserDTO) {
@@ -43,15 +46,36 @@ public class CustomUserService {
 
         newUser.setCreatedAt(LocalDate.now());
 
-        customUserRepository.save(newUser);
+        userRepository.save(newUser);
 
+
+    }
+
+    public CustomUser getUserById(Integer userId){
+        Optional<CustomUser> optionalUser = userRepository.findById(userId);
+
+        if (optionalUser.isEmpty())
+            throw new NoSuchElementException("User not found!");
+
+        return optionalUser.get();
+    }
+
+    public List<CustomUser> getAllFriends(Integer userId){
+
+        List<CustomUser> friends = new ArrayList<>();
+
+        Optional<List<CustomUser>> optonalFriends =  userRepository.findAllFriends(userId);
+        if(optonalFriends.isPresent())
+            friends = optonalFriends.get();
+
+        return friends;
 
     }
 
     public void sendFriendRequest(Integer userId, Integer potentialFrinedId) {
 
-        Optional<CustomUser> user = customUserRepository.findById(userId);
-        Optional<CustomUser> potentialFriend = customUserRepository.findById(potentialFrinedId);
+        Optional<CustomUser> user = userRepository.findById(userId);
+        Optional<CustomUser> potentialFriend = userRepository.findById(potentialFrinedId);
 
 
         Friendship friendship = new Friendship(FriendshipStatus.Pending, LocalDate.now(), user.get(), potentialFriend.get());
@@ -61,8 +85,8 @@ public class CustomUserService {
     }
 
     public void postFriendComment(Integer userId, Integer friendId) {
-        Optional<CustomUser> user = customUserRepository.findById(userId);
-        Optional<CustomUser> friend = customUserRepository.findById(friendId);
+        Optional<CustomUser> user = userRepository.findById(userId);
+        Optional<CustomUser> friend = userRepository.findById(friendId);
 
         if (user.isEmpty()) {
             //TODO: Treba da se baci error da user nije pronadjen
@@ -92,5 +116,9 @@ public class CustomUserService {
 
     public CustomUser convertToEntity(NewCustomUserDTO newCustomUserDTO) {
         return new CustomUser(newCustomUserDTO.username(), newCustomUserDTO.password());
+    }
+
+    public FriendDTO convertToFriendDTO(CustomUser user){
+        return new FriendDTO(user.getId(), user.getUsername(), user.getImageUrl(), null,null);
     }
 }

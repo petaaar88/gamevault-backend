@@ -1,23 +1,22 @@
 package met.petar_djordjevic_5594.gamevalut_server.service.game;
 
 import met.petar_djordjevic_5594.gamevalut_server.exception.ResourceNotFoundException;
+import met.petar_djordjevic_5594.gamevalut_server.model.customUser.FriendDTO;
 import met.petar_djordjevic_5594.gamevalut_server.model.game.AcquiredGameCopy;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.CustomUser;
 import met.petar_djordjevic_5594.gamevalut_server.model.game.*;
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IAcquiredGameCopyRepository;
-import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.ICustomUserRepository;
 import met.petar_djordjevic_5594.gamevalut_server.repository.game.IGameRepository;
 import met.petar_djordjevic_5594.gamevalut_server.repository.game.IGameReviewRepository;
-import met.petar_djordjevic_5594.gamevalut_server.repository.game.IGameSystemRequirementsRepository;
 import met.petar_djordjevic_5594.gamevalut_server.repository.game.IGenreRepository;
+import met.petar_djordjevic_5594.gamevalut_server.service.customUser.CustomUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
 import java.time.LocalDate;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class GameService {
@@ -29,9 +28,10 @@ public class GameService {
     @Autowired
     IGameRepository gameRepository;
     @Autowired
-    ICustomUserRepository userRepository;
-    @Autowired
     IGameReviewRepository gameReviewRepository;
+
+    @Autowired
+    CustomUserService userService;
 
 
     public GameService() {
@@ -41,7 +41,7 @@ public class GameService {
 
         Optional<Genre> optionalGenre = genreRepository.findByName(newGenre.getName());
 
-        if(optionalGenre.isPresent())
+        if (optionalGenre.isPresent())
             throw new DataIntegrityViolationException("Genre already exists");
 
         genreRepository.save(newGenre);
@@ -60,23 +60,23 @@ public class GameService {
     }
 
     public void addGenreToGame(Integer gameId, Integer genreId) {
-        Optional<Game> optionalGame = gameRepository.findById(gameId);
+        Game game = this.getGameById(gameId);
         Optional<Genre> optionalGenre = genreRepository.findById(genreId);
 
-        if (optionalGame.isEmpty() || optionalGenre.isEmpty()) {
-            throw new ResourceNotFoundException("Game or Genre not found");
+        if (optionalGenre.isEmpty()) {
+            throw new ResourceNotFoundException("Genre not found");
         }
 
-        if (optionalGenre.get().getGames().stream().anyMatch(game -> game == optionalGame.get())) {
+        if (optionalGenre.get().getGames().stream().anyMatch(game1 -> game1 == game)) {
             throw new DataIntegrityViolationException("This genre is already associated with the game");
         }
 
-        optionalGenre.get().getGames().add(optionalGame.get());
+        optionalGenre.get().getGames().add(game);
 
         genreRepository.save(optionalGenre.get());
     }
 
-    public void addSystemRequirements(Integer gameId, String type, GameSystemRequirementsDTO gameSystemRequirementsDTO) {
+    public void addSystemRequirements(Integer gameId, String type, NewGameSystemRequirementsDTO newGameSystemRequirementsDTO) {
         GameSystemRequirementsType systemRequirementsType;
 
         if (type.equalsIgnoreCase("minimum"))
@@ -88,23 +88,19 @@ public class GameService {
         }
 
 
-        Optional<Game> optionalGame = gameRepository.findById(gameId);
+        Game game = this.getGameById(gameId);
 
-        if (optionalGame.isEmpty()) {
-            throw new NoSuchElementException("Game not found!");
-        }
-
-        if (optionalGame.get().getSystemRequirements().stream().anyMatch(systemRequirements -> systemRequirements.getType() == systemRequirementsType)) {
+        if (game.getSystemRequirements().stream().anyMatch(systemRequirements -> systemRequirements.getType() == systemRequirementsType)) {
             throw new DataIntegrityViolationException("This system requirements type already assoiciated with this game ");
         }
 
-        GameSystemRequirements gameSystemRequirements = this.convertSystemRequirementsToEntity(gameSystemRequirementsDTO, systemRequirementsType);
+        GameSystemRequirements gameSystemRequirements = this.convertSystemRequirementsToEntity(newGameSystemRequirementsDTO, systemRequirementsType);
 
-        gameSystemRequirements.setGame(optionalGame.get());
+        gameSystemRequirements.setGame(game);
 
-        optionalGame.get().getSystemRequirements().add(gameSystemRequirements);
+        game.getSystemRequirements().add(gameSystemRequirements);
 
-        gameRepository.save(optionalGame.get());
+        gameRepository.save(game);
 
     }
 
@@ -124,32 +120,22 @@ public class GameService {
             throw new NoSuchElementException("Wrong image type!");
         }
 
-        Optional<Game> optionalGame = gameRepository.findById(gameId);
-
-        if (optionalGame.isEmpty()) {
-            throw new NoSuchElementException("Game not found!");
-        }
+        Game game = this.getGameById(gameId);
 
         GameImage gameImage = new GameImage(imageType, newGameImageDTO.url());
 
-        gameImage.setGame(optionalGame.get());
+        gameImage.setGame(game);
 
-        optionalGame.get().getImages().add(gameImage);
+        game.getImages().add(gameImage);
 
-        gameRepository.save(optionalGame.get());
+        gameRepository.save(game);
 
     }
 
     public void addGameToUserCollection(Integer userId, Integer gameId) {
-        Optional<CustomUser> optionalUser = userRepository.findById(userId);
-        Optional<Game> optionalGame = gameRepository.findById(gameId);
+        CustomUser user = userService.getUserById(userId);
+        Game game = this.getGameById(gameId);
 
-        if (optionalGame.isEmpty())
-            throw new NoSuchElementException("Game not found!");
-
-
-        if (optionalUser.isEmpty())
-            throw new NoSuchElementException("User not found!");
 
         Optional<AcquiredGameCopy> optionalAcquiredGameCopy = acquiredGameCopyRepository.findGameCopyById(userId, gameId);
 
@@ -159,14 +145,14 @@ public class GameService {
 
         AcquiredGameCopy acquiredGameCopy = new AcquiredGameCopy();
 
-        acquiredGameCopy.setUser(optionalUser.get());
+        acquiredGameCopy.setUser(user);
         acquiredGameCopy.setAcquisitionDate(LocalDate.now());
-        acquiredGameCopy.setGame(optionalGame.get());
+        acquiredGameCopy.setGame(game);
         acquiredGameCopy.setTimePlayed(BigInteger.ZERO);
 
-        optionalGame.get().getAcquiredGameCopies().add(acquiredGameCopy);
+        game.getAcquiredGameCopies().add(acquiredGameCopy);
 
-        gameRepository.save(optionalGame.get());
+        gameRepository.save(game);
     }
 
     public void addReview(Integer userId, Integer gameId, NewGameReviewDTO newGameReviewDTO) {
@@ -187,24 +173,16 @@ public class GameService {
             throw new NoSuchElementException("Wrong rating type!");
         }
 
-        Optional<CustomUser> optionalUser = userRepository.findById(userId);
-        Optional<Game> optionalGame = gameRepository.findById(gameId);
+        CustomUser user = userService.getUserById(userId);
+        Game game = this.getGameById(gameId);
 
-        if (optionalGame.isEmpty()) {
-            throw new NoSuchElementException("Game not found!");
-        }
 
-        if (optionalUser.isEmpty()) {
-            throw new NoSuchElementException("User not found!");
-        }
-
-        //TODO: Dodaj logiku koja zabranjuje da se ponovo doda komentar na igru
         Optional<AcquiredGameCopy> optionalAcquiredGameCopy = acquiredGameCopyRepository.findGameCopyById(userId, gameId);
 
-        if(optionalAcquiredGameCopy.isEmpty())
-            throw  new NoSuchElementException("User doesnt own the game!");
+        if (optionalAcquiredGameCopy.isEmpty())
+            throw new NoSuchElementException("User doesnt own the game!");
 
-        if(optionalAcquiredGameCopy.get().getGameReview() != null)
+        if (optionalAcquiredGameCopy.get().getGameReview() != null)
             throw new NoSuchElementException("Already have review!");
 
 
@@ -222,8 +200,109 @@ public class GameService {
         acquiredGameCopyRepository.save(optionalAcquiredGameCopy.get());
     }
 
-    public Optional<Game> getById(Integer gameId) {
-        return gameRepository.findById(gameId);
+    public List<GameOverviewDTO> getAll() {
+
+        List<GameOverviewDTO> games = new ArrayList<>();
+
+        gameRepository.findAll().forEach(game -> {
+            games.add(this.convertToOverviewDTO(game));
+        });
+
+        return games;
+    }
+
+    public List<GameProductPageImage> getProductPageImages(Integer gameId) {
+
+        Game game = this.getGameById(gameId);
+
+        List<GameProductPageImage> images = new ArrayList<>();
+
+        game.getImages().forEach(gameImage -> {
+            if (gameImage.getType() == GameImageType.Product_Page)
+                images.add(new GameProductPageImage(gameImage.getUrl()));
+        });
+
+        return images;
+    }
+
+    public GameDescriptionDTO getDescription(Integer gameId) {
+
+        Game game = this.getGameById(gameId);
+
+        List<String> genres = new ArrayList<>();
+
+        game.getGenres().forEach(genre -> {
+            genres.add(genre.getName());
+        });
+
+        return new GameDescriptionDTO(game.getDescription(), genres, game.getDeveloper(), game.getReleaseDate().toString());
+    }
+
+    public String getDownloadURL(Integer gameId) {
+
+        Game game = this.getGameById(gameId);
+
+        //TODO: uradi da korisnik ne moze da preuzme igru ako je nema
+
+        return game.getDownloadUrl();
+    }
+
+    public List<FriendDTO> getFriendsThatOwnGame(Integer gameId, Integer userId) {
+
+        Game game = this.getGameById(gameId);
+        CustomUser user = userService.getUserById(userId);
+
+        List<CustomUser> friends = userService.getAllFriends(userId);
+
+        if (friends.isEmpty())
+            return new ArrayList<>();
+
+        List<FriendDTO> friendsThatOwnGame = new ArrayList<>();
+
+        friends.forEach(friend -> {
+            //TODO: dodaj loguku gde se vidi koliko sati je user igrao ovu igru
+            if (this.doesUserHaveGame(friend.getId(), gameId))
+                friendsThatOwnGame.add(userService.convertToFriendDTO(friend));
+        });
+
+        return friendsThatOwnGame;
+
+    }
+
+    public GameSystemRequirementsDTO getSystemRequirementsForGame(Integer gameId){
+        Game game = this.getGameById(gameId);
+
+        Optional<List<GameSystemRequirements>> optionalGameSystemRequirements = gameRepository.findSystemRequirementsOfGame(gameId);
+
+        if(optionalGameSystemRequirements.get().size() != 2)
+            throw new DataIntegrityViolationException("Must be two system requirements per game!");
+
+        GameSystemRequirements minimum = optionalGameSystemRequirements.get().stream().filter(systemRequirements -> systemRequirements.getType() == GameSystemRequirementsType.Minimum).findFirst().get();
+        GameSystemRequirements recommended = optionalGameSystemRequirements.get().stream().filter(systemRequirements -> systemRequirements.getType() == GameSystemRequirementsType.Recommended).findFirst().get();
+
+        Map<String, NewGameSystemRequirementsDTO> requirementsDTOMap = new HashMap<>();
+
+        requirementsDTOMap.put("minimum", new NewGameSystemRequirementsDTO(minimum.getCpu(), minimum.getGpu(), minimum.getExpectedStorage(), minimum.getStorage(), minimum.getOperatingSystem(), minimum.getRam()));
+        requirementsDTOMap.put("recommended", new NewGameSystemRequirementsDTO(recommended.getCpu(), recommended.getGpu(), recommended.getExpectedStorage(), recommended.getStorage(), recommended.getOperatingSystem(), recommended.getRam()));
+
+        return new GameSystemRequirementsDTO(requirementsDTOMap);
+
+    }
+
+    public boolean doesUserHaveGame(Integer userId, Integer gameId) {
+        Game game = this.getGameById(gameId);
+        CustomUser user = userService.getUserById(userId);
+
+        return gameRepository.findIfUserHaveGame(gameId, userId).isPresent();
+    }
+
+    public Game getGameById(Integer gameId) {
+        Optional<Game> optionalGame = gameRepository.findById(gameId);
+
+        if (optionalGame.isEmpty())
+            throw new NoSuchElementException("Game not found!");
+
+        return optionalGame.get();
     }
 
 
@@ -231,10 +310,17 @@ public class GameService {
         return new Game(newGameDTO.description(), newGameDTO.developer(), newGameDTO.downloadUrl(), newGameDTO.releaseDate(), newGameDTO.title());
     }
 
-    public GameSystemRequirements convertSystemRequirementsToEntity(GameSystemRequirementsDTO
-                                                                            gameSystemRequirementsDTO, GameSystemRequirementsType type) {
-        return new GameSystemRequirements(gameSystemRequirementsDTO.cpu(), gameSystemRequirementsDTO.gpu(), gameSystemRequirementsDTO.expectedStorage(), gameSystemRequirementsDTO.storage(), gameSystemRequirementsDTO.operatingSystem(), gameSystemRequirementsDTO.ram(), type);
+    public GameSystemRequirements convertSystemRequirementsToEntity(NewGameSystemRequirementsDTO
+                                                                            newGameSystemRequirementsDTO, GameSystemRequirementsType type) {
+        return new GameSystemRequirements(newGameSystemRequirementsDTO.cpu(), newGameSystemRequirementsDTO.gpu(), newGameSystemRequirementsDTO.expectedStorage(), newGameSystemRequirementsDTO.storage(), newGameSystemRequirementsDTO.operatingSystem(), newGameSystemRequirementsDTO.ram(), type);
     }
 
+    public GameOverviewDTO convertToOverviewDTO(Game game) {
+        Map<String, String> rating = new HashMap<>();
+        rating.put("rating", (game.getOverallRating() != null) ? game.getOverallRating().getValue() : null);
+        rating.put("rating_percentage", (game.getOverallRatingPercentage() != null) ? game.getOverallRatingPercentage().toString() : null);
+        rating.put("reviews", game.getNumberOfReviews().toString());
+        return new GameOverviewDTO(game.getId(), game.getTitle(), game.getNumberOfAcquisitions(), game.getDeveloper(), rating);
+    }
 
 }
