@@ -280,12 +280,10 @@ public class GameService {
         GameSystemRequirements minimum = optionalGameSystemRequirements.get().stream().filter(systemRequirements -> systemRequirements.getType() == GameSystemRequirementsType.Minimum).findFirst().get();
         GameSystemRequirements recommended = optionalGameSystemRequirements.get().stream().filter(systemRequirements -> systemRequirements.getType() == GameSystemRequirementsType.Recommended).findFirst().get();
 
-        Map<String, NewGameSystemRequirementsDTO> requirementsDTOMap = new HashMap<>();
+        NewGameSystemRequirementsDTO minDTO =  new NewGameSystemRequirementsDTO(minimum.getCpu(), minimum.getGpu(), minimum.getExpectedStorage(), minimum.getStorage(), minimum.getOperatingSystem(), minimum.getRam());
+        NewGameSystemRequirementsDTO reqDTO =  new NewGameSystemRequirementsDTO(recommended.getCpu(), recommended.getGpu(), recommended.getExpectedStorage(), recommended.getStorage(), recommended.getOperatingSystem(), recommended.getRam());
 
-        requirementsDTOMap.put("minimum", new NewGameSystemRequirementsDTO(minimum.getCpu(), minimum.getGpu(), minimum.getExpectedStorage(), minimum.getStorage(), minimum.getOperatingSystem(), minimum.getRam()));
-        requirementsDTOMap.put("recommended", new NewGameSystemRequirementsDTO(recommended.getCpu(), recommended.getGpu(), recommended.getExpectedStorage(), recommended.getStorage(), recommended.getOperatingSystem(), recommended.getRam()));
-
-        return new GameSystemRequirementsDTO(requirementsDTOMap);
+        return new GameSystemRequirementsDTO(minDTO,reqDTO);
 
     }
 
