@@ -289,6 +289,15 @@ public class GameService {
 
     }
 
+    public GameOverallRatingDTO getOverallRating(Integer gameId){
+        Game game = this.getGameById(gameId);
+
+        GameRating overallRating = game.getOverallRating();
+
+        return new GameOverallRatingDTO(overallRating != null ? overallRating.getValue(): null, game.getNumberOfReviews());
+
+    }
+
     public boolean doesUserHaveGame(Integer userId, Integer gameId) {
         Game game = this.getGameById(gameId);
         CustomUser user = userService.getUserById(userId);

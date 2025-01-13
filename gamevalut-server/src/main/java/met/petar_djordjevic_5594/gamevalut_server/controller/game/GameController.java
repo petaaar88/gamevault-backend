@@ -71,6 +71,12 @@ public class GameController {
         return gameService.getSystemRequirementsForGame(gameId);
     }
 
+    @GetMapping("/{id}/overal-rating")
+    @ResponseStatus(HttpStatus.OK)
+    public GameOverallRatingDTO getOverallRating(@PathVariable("id") Integer gameId){
+        return gameService.getOverallRating(gameId);
+    }
+
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     public void createGame(@Valid @RequestBody NewGameDTO newGameDTO) {
