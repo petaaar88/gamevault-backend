@@ -10,6 +10,7 @@ import met.petar_djordjevic_5594.gamevalut_server.repository.game.IGameRepositor
 import met.petar_djordjevic_5594.gamevalut_server.repository.game.IGameReviewRepository;
 import met.petar_djordjevic_5594.gamevalut_server.repository.game.IGenreRepository;
 import met.petar_djordjevic_5594.gamevalut_server.service.customUser.CustomUserService;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -330,6 +331,18 @@ public class GameService {
             return null;
         return new UserGameCollectionDTO(optionalUserGameCollection.get());
     }
+
+    //TODO: uradi za jednu korisnikovou igru
+//    public SingleGameInCollectionDetailsDTO getSingleGameInCollection(Integer userId,Integer gameId){
+//        CustomUser user = userService.getUserById(userId);
+//        Game game = this.getGameById(gameId);
+//
+//        if(!this.doesUserHaveGame(user.getId(), game.getId()))
+//            throw new NoSuchElementException("User doesnt own this game!");
+//
+//
+//
+//    }
 
     public boolean doesUserHaveGame(Integer userId, Integer gameId) {
         Game game = this.getGameById(gameId);

@@ -91,6 +91,18 @@ public class GameController {
         return gameService.getUsersGameCollection(userId);
     }
 
+    //TODO: uradi za jednu korisnikovou igru
+//    @GetMapping("/collection/{userId}/{gameId}")
+//    @ResponseStatus(HttpStatus.OK)
+//    public SingleGameInCollectionDetailsDTO getSingleGameInCollection(@PathVariable("userId") Integer userId,@PathVariable("gameId") Integer gameId ){
+//        return gameService.getSingleGameInCollection(userId, gameId);
+//    }
+
+    @PostMapping("/games/{gameId}/{userId}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void addGameToUsersGameCollection(@PathVariable("userId") Integer userId,@PathVariable("gameId") Integer gameId){
+        gameService.addGameToUserCollection(userId, gameId);
+    }
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)

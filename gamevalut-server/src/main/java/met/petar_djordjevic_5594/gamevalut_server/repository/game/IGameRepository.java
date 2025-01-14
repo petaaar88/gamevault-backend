@@ -25,4 +25,7 @@ public interface IGameRepository extends JpaRepository<Game, Integer> {
     @Query(value = "SELECT game.id,game_image.url, game.title FROM game JOIN game_image ON game.id = game_image.game_id JOIN users_games ON users_games.game_id = game.id   WHERE game_image.type = 'Icon' AND users_games.user_id = :userId", nativeQuery = true)
     Optional<List<SingleGameInCollectionDTO>> findAllUserGameCollection(@Param("userId") Integer userId);
 
+    //TODO: dodaj samo u where klauzuli za usera i game
+    @Query(value = "SELECT distinct users_games.time_played, users_games.last_played_at, game.description, game.title, game_image.url FROM users_games JOIN game ON users_games.game_id = game.id JOIN game_image ON game_image.game_id = game.id WHERE game_image.type = 'Library'", nativeQuery = true)
+    Optional<SingleGameInCollectionDetailsDTO> findSingleGameInUserCollection(@Param("userId") Integer userId,@Param("game") Integer gameId );
 }
