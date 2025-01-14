@@ -37,29 +37,37 @@ public class GameController {
         return gameService.getAll();
     }
 
+    @GetMapping("/{id}/reviews")
+    @ResponseStatus(HttpStatus.OK)
+    public List<GameReviewDTO> getAllReviewsForGame(@RequestParam(defaultValue = "1") Integer page,
+                                                    @RequestParam(defaultValue = "10") Integer size, @PathVariable("id") Integer gameId) {
+        //TODO: uradi paginaciju
+        return gameService.getAllReviewsForGame(gameId);
+    }
+
     @GetMapping("/{id}/pp-images")
     @ResponseStatus(HttpStatus.OK)
-    public Map<String,List<GameProductPageImage>> getAllProductPageImages(@PathVariable("id") Integer gameId){
+    public Map<String, List<GameProductPageImage>> getAllProductPageImages(@PathVariable("id") Integer gameId) {
         Map<String, List<GameProductPageImage>> images = new HashMap<>();
-        images.put("images",gameService.getProductPageImages(gameId));
+        images.put("images", gameService.getProductPageImages(gameId));
         return images;
     }
 
     @GetMapping("/{id}/description")
     @ResponseStatus(HttpStatus.OK)
-    public GameDescriptionDTO getGameDescription(@PathVariable("id") Integer gameId){
+    public GameDescriptionDTO getGameDescription(@PathVariable("id") Integer gameId) {
         return gameService.getDescription(gameId);
     }
 
     @GetMapping("/{id}/download")
     @ResponseStatus(HttpStatus.OK)
-    public String getDownloadURL(@PathVariable("id") Integer gameId){
+    public String getDownloadURL(@PathVariable("id") Integer gameId) {
         return gameService.getDownloadURL(gameId);
     }
 
     @GetMapping("/{gameId}/{userId}/friends")
     @ResponseStatus(HttpStatus.OK)
-    public List<FriendDTO> getFriendThatOwnGame(@PathVariable("gameId") Integer gameId, @PathVariable("userId") Integer userId){
+    public List<FriendDTO> getFriendThatOwnGame(@PathVariable("gameId") Integer gameId, @PathVariable("userId") Integer userId) {
 
         //TODO: Proveri da li radi
         return gameService.getFriendsThatOwnGame(gameId, userId);
@@ -67,15 +75,22 @@ public class GameController {
 
     @GetMapping("/{id}/system-requirements")
     @ResponseStatus(HttpStatus.OK)
-    public GameSystemRequirementsDTO getSystemRequirements(@PathVariable("id") Integer gameId){
+    public GameSystemRequirementsDTO getSystemRequirements(@PathVariable("id") Integer gameId) {
         return gameService.getSystemRequirementsForGame(gameId);
     }
 
     @GetMapping("/{id}/overal-rating")
     @ResponseStatus(HttpStatus.OK)
-    public GameOverallRatingDTO getOverallRating(@PathVariable("id") Integer gameId){
+    public GameOverallRatingDTO getOverallRating(@PathVariable("id") Integer gameId) {
         return gameService.getOverallRating(gameId);
     }
+
+    @GetMapping("/collection/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public UserGameCollectionDTO getUsersGameCollection(@PathVariable("userId") Integer userId){
+        return gameService.getUsersGameCollection(userId);
+    }
+
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)

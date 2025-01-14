@@ -296,6 +296,41 @@ public class GameService {
 
     }
 
+    public List<GameReviewDTO> getAllReviewsForGame(Integer gameId){
+
+        Game game = this.getGameById(gameId);
+
+        Optional<List<GameReview>> optionalGameReviews = gameRepository.findAllGameReviews(gameId);
+
+        if(optionalGameReviews.isEmpty())
+            return new ArrayList<>();
+
+        List<GameReviewDTO> gameReviewDTOS = new ArrayList<>();
+
+        optionalGameReviews.get().forEach(gameReview -> {
+            CustomUser user = gameReview.getAcquiredGameCopy().getUser();
+
+            Map<String, String > userMap = new HashMap<>();
+
+            userMap.put("id",user.getId().toString());
+            userMap.put("username", user.getUsername());
+            userMap.put("icon", user.getImageUrl());
+            gameReviewDTOS.add(new GameReviewDTO(gameReview.getContent(),gameReview.getRating().getValue(),LocalDate.now().toString(),userMap ));
+        });
+
+        return gameReviewDTOS;
+    }
+
+    public UserGameCollectionDTO getUsersGameCollection(Integer userId){
+        CustomUser user = userService.getUserById(userId);
+
+        Optional<List<SingleGameInCollectionDTO>> optionalUserGameCollection = gameRepository.findAllUserGameCollection(userId);
+
+        if(optionalUserGameCollection.isEmpty())
+            return null;
+        return new UserGameCollectionDTO(optionalUserGameCollection.get());
+    }
+
     public boolean doesUserHaveGame(Integer userId, Integer gameId) {
         Game game = this.getGameById(gameId);
         CustomUser user = userService.getUserById(userId);
