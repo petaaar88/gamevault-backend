@@ -15,16 +15,6 @@ public class FriendComment {
     )
     private String content;
     @Column(
-            name = "receiver_id",
-            nullable = false
-    )
-    private Integer receiver_id;
-    @Column(
-            name = "sender_id",
-            nullable = false
-    )
-    private Integer sender_id;
-    @Column(
             name = "posted_at",
             nullable = false
     )
@@ -36,10 +26,8 @@ public class FriendComment {
     public FriendComment() {
     }
 
-    public FriendComment(String content, Integer receiver_id, Integer sender_id, LocalDate posted_at, Friendship friendship) {
+    public FriendComment(String content, LocalDate posted_at, Friendship friendship) {
         this.content = content;
-        this.receiver_id = receiver_id;
-        this.sender_id = sender_id;
         this.posted_at = posted_at;
         this.friendship = friendship;
     }
@@ -58,22 +46,6 @@ public class FriendComment {
 
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public Integer getReceiver_id() {
-        return receiver_id;
-    }
-
-    public void setReceiver_id(Integer receiver_id) {
-        this.receiver_id = receiver_id;
-    }
-
-    public Integer getSender_id() {
-        return sender_id;
-    }
-
-    public void setSender_id(Integer sender_id) {
-        this.sender_id = sender_id;
     }
 
     public LocalDate getPosted_at() {

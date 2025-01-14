@@ -98,6 +98,7 @@ public class GameController {
 //        return gameService.getSingleGameInCollection(userId, gameId);
 //    }
 
+
     @PostMapping("/games/{gameId}/{userId}")
     @ResponseStatus(HttpStatus.CREATED)
     public void addGameToUsersGameCollection(@PathVariable("userId") Integer userId,@PathVariable("gameId") Integer gameId){

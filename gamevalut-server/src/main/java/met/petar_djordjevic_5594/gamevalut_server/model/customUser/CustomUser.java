@@ -39,6 +39,11 @@ public class CustomUser {
     private Country country;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<AcquiredGameCopy> acquiredGameCopies = new ArrayList<>();
+    @OneToMany(mappedBy = "uid1", cascade = CascadeType.ALL)
+    private List<FriendRequest> sentRequests= new ArrayList<>();
+    @OneToMany(mappedBy = "uid2", cascade = CascadeType.ALL)
+    private List<FriendRequest> receivedRequests= new ArrayList<>();
+
 
     public CustomUser() {
     }
@@ -113,4 +118,27 @@ public class CustomUser {
         this.country = country;
     }
 
+    public List<AcquiredGameCopy> getAcquiredGameCopies() {
+        return acquiredGameCopies;
+    }
+
+    public void setAcquiredGameCopies(List<AcquiredGameCopy> acquiredGameCopies) {
+        this.acquiredGameCopies = acquiredGameCopies;
+    }
+
+    public List<FriendRequest> getSentRequests() {
+        return sentRequests;
+    }
+
+    public void setSentRequests(List<FriendRequest> sentRequests) {
+        this.sentRequests = sentRequests;
+    }
+
+    public List<FriendRequest> getReceivedRequests() {
+        return receivedRequests;
+    }
+
+    public void setReceivedRequests(List<FriendRequest> receivedRequests) {
+        this.receivedRequests = receivedRequests;
+    }
 }

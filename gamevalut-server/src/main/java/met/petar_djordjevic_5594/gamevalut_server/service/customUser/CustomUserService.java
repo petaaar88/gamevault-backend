@@ -1,5 +1,6 @@
 package met.petar_djordjevic_5594.gamevalut_server.service.customUser;
 
+import met.petar_djordjevic_5594.gamevalut_server.exception.CannotAddFriendException;
 import met.petar_djordjevic_5594.gamevalut_server.model.country.Country;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.*;
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.ICustomUserRepository;
@@ -74,13 +75,37 @@ public class CustomUserService {
 
     public void sendFriendRequest(Integer userId, Integer potentialFrinedId) {
 
-        Optional<CustomUser> user = userRepository.findById(userId);
-        Optional<CustomUser> potentialFriend = userRepository.findById(potentialFrinedId);
+        CustomUser user = this.getUserById(userId);
+        CustomUser potentialFriend = this.getUserById(potentialFrinedId);
+
+        if(user == potentialFriend)
+            throw new CannotAddFriendException("Same id input for user and friend!");
 
 
-        Friendship friendship = new Friendship(FriendshipStatus.Pending, LocalDate.now(), user.get(), potentialFriend.get());
+        List<CustomUser> friends = getAllFriends(userId);
 
-        friendshipRepository.save(friendship);
+        if(!friends.isEmpty()){
+            friends.forEach(friend->{
+                if(friend == potentialFriend)
+                    throw new CannotAddFriendException("Already friends!");
+            });
+        }
+
+        user.getSentRequests().forEach(request->{
+            if(request.getUid2().getId() == potentialFriend.getId())
+                throw new CannotAddFriendException("Request already sent!");
+        });
+
+        user.getReceivedRequests().forEach(request->{
+            if(request.getUid1().getId() == potentialFriend.getId())
+                throw new CannotAddFriendException("Request already received!");
+        });
+
+        FriendRequest newFriendRequest = new FriendRequest(user,potentialFriend);
+
+        user.getSentRequests().add(newFriendRequest);
+
+        userRepository.save(user);
 
     }
 
@@ -105,7 +130,7 @@ public class CustomUserService {
         Optional<FriendComment> checkingComment = friendCommentRepostiory.findBySenderId(userId);
 
         if (checkingComment.isEmpty()) {
-            FriendComment comment = new FriendComment("najjaki igra", friendId, userId, LocalDate.now(), friendship.get());
+            FriendComment comment = new FriendComment("najjaki igra", LocalDate.now(), friendship.get());
             friendCommentRepostiory.save(comment);
         } else {
             //TODO: Baci error da postoji vec komentar

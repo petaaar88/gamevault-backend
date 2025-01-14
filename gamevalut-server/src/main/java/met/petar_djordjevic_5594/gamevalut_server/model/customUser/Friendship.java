@@ -11,12 +11,6 @@ public class Friendship {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Column(
-            name = "status",
-            nullable = false
-    )
-    @Enumerated(EnumType.STRING)
-    private FriendshipStatus status;
-    @Column(
             name = "added_at",
             nullable = false
     )
@@ -33,8 +27,8 @@ public class Friendship {
     public Friendship() {
     }
 
-    public Friendship(FriendshipStatus status, LocalDate added_at, CustomUser user1, CustomUser user2) {
-        this.status = status;
+    public Friendship(LocalDate added_at, CustomUser user1, CustomUser user2) {
+
         this.added_at = added_at;
         this.user1 = user1;
         this.user2 = user2;
@@ -46,14 +40,6 @@ public class Friendship {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public FriendshipStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(FriendshipStatus status) {
-        this.status = status;
     }
 
     public LocalDate getAdded_at() {
