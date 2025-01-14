@@ -2,6 +2,7 @@ package met.petar_djordjevic_5594.gamevalut_server.controller.customUser;
 
 import met.petar_djordjevic_5594.gamevalut_server.exception.CannotAddFriendException;
 import met.petar_djordjevic_5594.gamevalut_server.exception.ResourceNotFoundException;
+import met.petar_djordjevic_5594.gamevalut_server.model.customUser.FriendRequestsDTO;
 import met.petar_djordjevic_5594.gamevalut_server.service.customUser.CustomUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -23,8 +25,10 @@ public class FriendRequestController {
     @Autowired
     CustomUserService userService;
 
-//    @GetMapping("/{userId}")
-//    public
+    @GetMapping("/{userId}")
+    public FriendRequestsDTO getAll(@PathVariable("userId")Integer userId){
+        return userService.getAllFriendRequests(userId);
+    }
 
     @PostMapping("/send/{userId}/{friendId}")
     @ResponseStatus(HttpStatus.CREATED)

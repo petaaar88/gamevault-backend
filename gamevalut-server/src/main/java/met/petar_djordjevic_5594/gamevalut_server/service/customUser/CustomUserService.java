@@ -52,7 +52,7 @@ public class CustomUserService {
 
     }
 
-    public CustomUser getUserById(Integer userId){
+    public CustomUser getUserById(Integer userId) {
         Optional<CustomUser> optionalUser = userRepository.findById(userId);
 
         if (optionalUser.isEmpty())
@@ -61,12 +61,12 @@ public class CustomUserService {
         return optionalUser.get();
     }
 
-    public List<CustomUser> getAllFriends(Integer userId){
+    public List<CustomUser> getAllFriends(Integer userId) {
 
         List<CustomUser> friends = new ArrayList<>();
 
-        Optional<List<CustomUser>> optonalFriends =  userRepository.findAllFriends(userId);
-        if(optonalFriends.isPresent())
+        Optional<List<CustomUser>> optonalFriends = userRepository.findAllFriends(userId);
+        if (optonalFriends.isPresent())
             friends = optonalFriends.get();
 
         return friends;
@@ -78,34 +78,68 @@ public class CustomUserService {
         CustomUser user = this.getUserById(userId);
         CustomUser potentialFriend = this.getUserById(potentialFrinedId);
 
-        if(user == potentialFriend)
+        if (user == potentialFriend)
             throw new CannotAddFriendException("Same id input for user and friend!");
 
 
         List<CustomUser> friends = getAllFriends(userId);
 
-        if(!friends.isEmpty()){
-            friends.forEach(friend->{
-                if(friend == potentialFriend)
+        if (!friends.isEmpty()) {
+            friends.forEach(friend -> {
+                if (friend == potentialFriend)
                     throw new CannotAddFriendException("Already friends!");
             });
         }
 
-        user.getSentRequests().forEach(request->{
-            if(request.getUid2().getId() == potentialFriend.getId())
+        user.getSentRequests().forEach(request -> {
+            if (request.getUid2().getId() == potentialFriend.getId())
                 throw new CannotAddFriendException("Request already sent!");
         });
 
-        user.getReceivedRequests().forEach(request->{
-            if(request.getUid1().getId() == potentialFriend.getId())
+        user.getReceivedRequests().forEach(request -> {
+            if (request.getUid1().getId() == potentialFriend.getId())
                 throw new CannotAddFriendException("Request already received!");
         });
 
-        FriendRequest newFriendRequest = new FriendRequest(user,potentialFriend);
+        FriendRequest newFriendRequest = new FriendRequest(user, potentialFriend);
 
         user.getSentRequests().add(newFriendRequest);
 
         userRepository.save(user);
+
+    }
+
+    public FriendRequestsDTO getAllFriendRequests(Integer userId) {
+        CustomUser user = this.getUserById(userId);
+
+        List<FriendDTO> receivedRequest = new ArrayList<>();
+        List<FriendDTO> sentRequest = new ArrayList<>();
+
+        user.getReceivedRequests().forEach(receivedRequest1 -> {
+            if (receivedRequest1.getUid2().getId() == userId) {
+                System.out.println(receivedRequest1.getUid1().getId());
+                System.out.println(receivedRequest1.getUid1().getUsername());
+
+            }
+        });
+
+
+        if (!user.getSentRequests().isEmpty()) {
+            user.getSentRequests().forEach(request -> {
+                sentRequest.add(new FriendDTO(request.getUid2().getId(), request.getUid2().getUsername(), request.getUid2().getImageUrl(), null, null));
+            });
+        }
+
+        if (!user.getReceivedRequests().isEmpty()) {
+            user.getReceivedRequests().forEach(request -> {
+                if (request.getUid2().getId() == userId) {
+                    receivedRequest.add(new FriendDTO(request.getUid1().getId(), request.getUid1().getUsername(), request.getUid1().getImageUrl(), null, null));
+
+                }
+            });
+        }
+
+        return new FriendRequestsDTO(receivedRequest, sentRequest);
 
     }
 
@@ -143,7 +177,7 @@ public class CustomUserService {
         return new CustomUser(newCustomUserDTO.username(), newCustomUserDTO.password());
     }
 
-    public FriendDTO convertToFriendDTO(CustomUser user){
-        return new FriendDTO(user.getId(), user.getUsername(), user.getImageUrl(), null,null);
+    public FriendDTO convertToFriendDTO(CustomUser user) {
+        return new FriendDTO(user.getId(), user.getUsername(), user.getImageUrl(), null, null);
     }
 }
