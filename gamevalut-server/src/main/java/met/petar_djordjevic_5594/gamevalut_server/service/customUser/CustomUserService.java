@@ -5,6 +5,7 @@ import met.petar_djordjevic_5594.gamevalut_server.model.country.Country;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.*;
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.ICustomUserRepository;
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IFriendCommentRepostiory;
+import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IFriendRequestRepository;
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IFriendshipRepository;
 import met.petar_djordjevic_5594.gamevalut_server.service.country.CountryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,8 @@ public class CustomUserService {
     IFriendshipRepository friendshipRepository;
     @Autowired
     IFriendCommentRepostiory friendCommentRepostiory;
+    @Autowired
+    IFriendRequestRepository friendRequestRepository;
 
     @Autowired
     CountryService countryService;
@@ -115,15 +118,6 @@ public class CustomUserService {
         List<FriendDTO> receivedRequest = new ArrayList<>();
         List<FriendDTO> sentRequest = new ArrayList<>();
 
-        user.getReceivedRequests().forEach(receivedRequest1 -> {
-            if (receivedRequest1.getUid2().getId() == userId) {
-                System.out.println(receivedRequest1.getUid1().getId());
-                System.out.println(receivedRequest1.getUid1().getUsername());
-
-            }
-        });
-
-
         if (!user.getSentRequests().isEmpty()) {
             user.getSentRequests().forEach(request -> {
                 sentRequest.add(new FriendDTO(request.getUid2().getId(), request.getUid2().getUsername(), request.getUid2().getImageUrl(), null, null));
@@ -140,6 +134,35 @@ public class CustomUserService {
         }
 
         return new FriendRequestsDTO(receivedRequest, sentRequest);
+
+    }
+
+    public void deleteRequest(Integer userId, Integer requestSenderId) {
+        CustomUser user = this.getUserById(userId);
+        CustomUser requestSender = this.getUserById(requestSenderId);
+
+        if (user == requestSender)
+            throw new CannotAddFriendException("Same id input for user and friend!");
+
+        Integer[] requestId = new Integer[1];
+
+        user.getReceivedRequests().forEach(request->{
+            if(request.getUid1().getId() == requestSenderId && request.getUid2().getId() == userId)
+                requestId[0] = request.getId();
+        });
+
+
+        if(requestId[0] == null)
+            throw new NoSuchElementException("Friend Request does not exist!");
+        System.out.println(requestId[0]);
+
+        user.getReceivedRequests().removeIf(request -> request.getId() == requestId[0]);
+        requestSender.getSentRequests().removeIf(request -> request.getId() == requestId[0]);
+
+        userRepository.save(user);
+        userRepository.save(requestSender);
+
+        friendRequestRepository.deleteById(requestId[0]);
 
     }
 

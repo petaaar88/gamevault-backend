@@ -26,14 +26,20 @@ public class FriendRequestController {
     CustomUserService userService;
 
     @GetMapping("/{userId}")
-    public FriendRequestsDTO getAll(@PathVariable("userId")Integer userId){
+    public FriendRequestsDTO getAll(@PathVariable("userId") Integer userId) {
         return userService.getAllFriendRequests(userId);
     }
 
     @PostMapping("/send/{userId}/{friendId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public void sendFriendRequest(@PathVariable("userId") Integer userId,@PathVariable("friendId") Integer friendId ){
+    public void sendFriendRequest(@PathVariable("userId") Integer userId, @PathVariable("friendId") Integer friendId) {
         userService.sendFriendRequest(userId, friendId);
+    }
+
+    @DeleteMapping("{userId}/{requestSenderId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteRequest(@PathVariable("userId") Integer userId, @PathVariable("requestSenderId") Integer requestSenderId) {
+        userService.deleteRequest(userId,requestSenderId);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
