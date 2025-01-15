@@ -5,6 +5,7 @@ import met.petar_djordjevic_5594.gamevalut_server.exception.ResourceNotFoundExce
 import met.petar_djordjevic_5594.gamevalut_server.model.webhook.OnlineFriendWebhookDTO;
 import met.petar_djordjevic_5594.gamevalut_server.service.webhook.OnlineFriendNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -27,6 +28,12 @@ public class WebhooksController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void subrscribeToOnlineFriendNotification(@Valid @RequestBody OnlineFriendWebhookDTO subscriber){
         onlineFriendNotificationService.subscribe(subscriber);
+    }
+
+    @DeleteMapping("/publicher/online-friend/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void unsubscribeToOnlineFriendNotification(@PathVariable("userId") Integer userId){
+        onlineFriendNotificationService.unsubscribe(userId);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -63,6 +70,15 @@ public class WebhooksController {
 
         body.put("message", ex.getMessage());
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Object> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
+
+        Map<String, Object> body = new HashMap<>();
+
+        body.put("message", ex.getMessage());
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
 
 }

@@ -11,11 +11,20 @@ public class RedisService {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
-    public void saveToRedis(String key, Object value) {
-        redisTemplate.opsForValue().set(key, value);
+    public void saveToRedis(String key, String hashKey, String value) {
+        redisTemplate.opsForHash().put(key, hashKey, value);
     }
 
-    public Object getFromRedis(String key) {
-        return redisTemplate.opsForValue().get(key);
+    public Object getFromRedis(String key, String hashKey) {
+        return redisTemplate.opsForHash().get(key, hashKey);
     }
+
+    public boolean checkIfHashExist(String key){
+        return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+    }
+
+    public void deleteFromRedis(String key){
+        redisTemplate.delete(key);
+    }
+
 }
