@@ -18,4 +18,7 @@ public interface ICustomUserRepository extends JpaRepository<CustomUser, Integer
 
     @Query(value = "SELECT * FROM friend_request WHERE uid1 = :userId OR uid2 = :userId", nativeQuery = true)
     Optional<List<CustomUser>> findAllFrinedsRequests(@Param("userId")Integer userId);
+
+    @Query(value = "select * from user where username = :usern", nativeQuery = true)
+    Optional<CustomUser> findByUsername(@Param("usern")String username);
 }

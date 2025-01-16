@@ -1,9 +1,12 @@
 package met.petar_djordjevic_5594.gamevalut_server.controller.customUser;
 
 import jakarta.validation.Valid;
+import met.petar_djordjevic_5594.gamevalut_server.model.customUser.CustomUser;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.LoginUserDTO;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.NewCustomUserDTO;
+import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.ICustomUserRepository;
 import met.petar_djordjevic_5594.gamevalut_server.service.customUser.CustomUserService;
+import met.petar_djordjevic_5594.gamevalut_server.service.webhook.OnlineFriendNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +20,17 @@ import java.util.Map;
 @RestController
 public class CustomUserController {
 
+    @Autowired
+    OnlineFriendNotificationService onlineFriendNotificationService;
+    @Autowired
+    ICustomUserRepository userService;
+
     @PostMapping("/login")
     private void login(@Valid @RequestBody LoginUserDTO loginUserDTO){
-        System.out.println(loginUserDTO);
 
+        CustomUser user = userService.findByUsername(loginUserDTO.username()).get();
+
+        onlineFriendNotificationService.subscribe(user.getId(), loginUserDTO.url());
     }
 
     @PostMapping("/register")
@@ -40,7 +50,8 @@ public class CustomUserController {
 
     @DeleteMapping("/logout/{userId}")
     private  void logout(@PathVariable("userId") Integer userId){
-
+        //TODO: uradi bolju logiku za logout
+        onlineFriendNotificationService.unsubscribe(userId);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

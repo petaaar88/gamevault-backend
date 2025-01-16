@@ -8,6 +8,8 @@ public record LoginUserDTO(
         @NotBlank(message = "Username not provided!")
         String username,
         @NotBlank(message = "Password not provided!")
-        String password
+        String password,
+        @NotBlank(message = "Url not provided!")
+        String url
 ) {
 }
