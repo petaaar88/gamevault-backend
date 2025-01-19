@@ -61,6 +61,7 @@ public class CustomUserController {
 
     }
 
+
     @DeleteMapping("/logout/{userId}")
     private  void logout(@PathVariable("userId") Integer userId){
         //TODO: uradi bolju logiku za logout

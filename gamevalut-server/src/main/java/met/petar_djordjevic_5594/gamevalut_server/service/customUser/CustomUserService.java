@@ -15,10 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class CustomUserService {
@@ -204,6 +201,17 @@ public class CustomUserService {
         userRepository.save(requestSender);
 
         friendRequestRepository.deleteById(requestId[0]);
+
+    }
+
+    public UserDescriptionDTO getUserProfileDescription(Integer userId){
+        CustomUser user = this.getUserById(userId);
+
+        Map<String, String > nationality = new HashMap<>();
+        nationality.put("name", user.getCountry().getName());
+        nationality.put("icon", user.getCountry().getFlagUrl());
+
+        return new UserDescriptionDTO(user.getId(), user.getUsername(), user.getImageUrl(), user.getDescription(), nationality );
 
     }
 
