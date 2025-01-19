@@ -21,8 +21,7 @@ public class Friendship {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id1", nullable = false)
     private CustomUser user2;
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "friendship", cascade = CascadeType.ALL)
-    private List<FriendComment> comments;
+
 
     public Friendship() {
     }
@@ -66,11 +65,5 @@ public class Friendship {
         this.user2 = user2;
     }
 
-    public List<FriendComment> getComments() {
-        return comments;
-    }
 
-    public void setComments(List<FriendComment> comments) {
-        this.comments = comments;
-    }
 }

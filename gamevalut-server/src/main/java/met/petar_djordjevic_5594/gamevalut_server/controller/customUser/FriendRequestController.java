@@ -36,6 +36,12 @@ public class FriendRequestController {
         userService.sendFriendRequest(userId, friendId);
     }
 
+    @PostMapping("{userId}/{requestId}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void acceptFriendRequest(@PathVariable("userId") Integer userId, @PathVariable("requestId") Integer requestId){
+        userService.acceptFriendRequest(userId, requestId);
+    }
+
     @DeleteMapping("{userId}/{requestSenderId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteRequest(@PathVariable("userId") Integer userId, @PathVariable("requestSenderId") Integer requestSenderId) {

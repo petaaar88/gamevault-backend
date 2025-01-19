@@ -10,7 +10,9 @@ import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IFriends
 import met.petar_djordjevic_5594.gamevalut_server.service.country.CountryService;
 import met.petar_djordjevic_5594.gamevalut_server.service.redis.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -137,6 +139,42 @@ public class CustomUserService {
         }
 
         return new FriendRequestsDTO(receivedRequest, sentRequest);
+
+    }
+
+    @Transactional
+    public void acceptFriendRequest(Integer userId, Integer requestId){
+        CustomUser user = this.getUserById(userId);
+
+        Optional<FriendRequest> optionalFriendRequest = friendRequestRepository.findById(requestId);
+
+        if(optionalFriendRequest.isEmpty())
+            throw new NoSuchElementException("Friend request does not exists!");
+
+        if(optionalFriendRequest.get().getUid1().getId() == userId)
+            throw new DataIntegrityViolationException("Invalid user Id!");
+
+        CustomUser potentialFriend = optionalFriendRequest.get().getUid1();
+
+
+
+        Friendship newUserFriend = new Friendship();
+
+        newUserFriend.setUser1(user);
+        newUserFriend.setUser2(potentialFriend);
+        newUserFriend.setAdded_at(LocalDate.now());
+
+
+        Friendship newFriendUser = new Friendship();
+
+        newFriendUser.setUser1(potentialFriend);
+        newFriendUser.setUser2(user);
+        newFriendUser.setAdded_at(newUserFriend.getAdded_at());
+
+        friendshipRepository.save(newUserFriend);
+        friendshipRepository.save(newFriendUser);
+
+        friendRequestRepository.delete(optionalFriendRequest.get());
 
     }
 

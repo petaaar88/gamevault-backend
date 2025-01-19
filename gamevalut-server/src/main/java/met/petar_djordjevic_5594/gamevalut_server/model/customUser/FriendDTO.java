@@ -11,6 +11,6 @@ public record FriendDTO(
         String username,
         String icon,
         BigInteger hoursPlayed,
-        Boolean inGame
+        String inGame
 ) {
 }
