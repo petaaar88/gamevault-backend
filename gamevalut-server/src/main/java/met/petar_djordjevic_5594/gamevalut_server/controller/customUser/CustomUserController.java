@@ -6,7 +6,8 @@ import met.petar_djordjevic_5594.gamevalut_server.model.customUser.LoginUserDTO;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.NewCustomUserDTO;
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.ICustomUserRepository;
 import met.petar_djordjevic_5594.gamevalut_server.service.customUser.CustomUserService;
-import met.petar_djordjevic_5594.gamevalut_server.service.webhook.OnlineFriendNotificationService;
+import met.petar_djordjevic_5594.gamevalut_server.service.notification.UserOnlineNotificationService;
+import met.petar_djordjevic_5594.gamevalut_server.service.redis.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,22 +16,34 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
 public class CustomUserController {
 
+
     @Autowired
-    OnlineFriendNotificationService onlineFriendNotificationService;
+    ICustomUserRepository userRepository;
     @Autowired
-    ICustomUserRepository userService;
+    CustomUserService userService;
+    @Autowired
+    UserOnlineNotificationService userOnlineNotificationService;
+    @Autowired
+    RedisService redisService;
 
     @PostMapping("/login")
     private void login(@Valid @RequestBody LoginUserDTO loginUserDTO){
 
-        CustomUser user = userService.findByUsername(loginUserDTO.username()).get();
+        CustomUser user = userRepository.findByUsername(loginUserDTO.username()).get();
+        System.out.println("Prijavlej je korisnik sa ID:" + user.getId() + ", username: " + user.getUsername());
 
-        onlineFriendNotificationService.subscribe(user.getId(), loginUserDTO.url());
+        //TODO: prepravi logiku i izbrisi ovo
+        redisService.saveToRedis(user.getId().toString(),"username", user.getUsername());
+
+        List<CustomUser> onlineFriends = userService.getOnlineFriends(user.getId());
+
+        userOnlineNotificationService.notifyOnlineFriends(user,onlineFriends);
     }
 
     @PostMapping("/register")
@@ -51,7 +64,7 @@ public class CustomUserController {
     @DeleteMapping("/logout/{userId}")
     private  void logout(@PathVariable("userId") Integer userId){
         //TODO: uradi bolju logiku za logout
-        onlineFriendNotificationService.unsubscribe(userId);
+
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

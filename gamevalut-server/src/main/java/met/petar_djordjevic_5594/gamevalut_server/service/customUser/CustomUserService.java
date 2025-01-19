@@ -8,6 +8,7 @@ import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IFriendC
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IFriendRequestRepository;
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IFriendshipRepository;
 import met.petar_djordjevic_5594.gamevalut_server.service.country.CountryService;
+import met.petar_djordjevic_5594.gamevalut_server.service.redis.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,8 @@ public class CustomUserService {
     IFriendCommentRepostiory friendCommentRepostiory;
     @Autowired
     IFriendRequestRepository friendRequestRepository;
+    @Autowired
+    RedisService redisService;
 
     @Autowired
     CountryService countryService;
@@ -194,6 +197,21 @@ public class CustomUserService {
         }
 
 
+    }
+
+    public List<CustomUser> getOnlineFriends(Integer userId){
+        CustomUser user = this.getUserById(userId);
+
+        List<CustomUser> friends = this.getAllFriends(userId);
+
+        List<CustomUser> onlineFriends = new ArrayList<>();
+
+        friends.forEach(friend ->{
+            if(redisService.checkIfHashExist(friend.getId().toString()))
+                onlineFriends.add(friend);
+        });
+
+        return onlineFriends;
     }
 
     public CustomUser convertToEntity(NewCustomUserDTO newCustomUserDTO) {
