@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface IFriendCommentRepostiory extends JpaRepository<FriendComment, Integer> {
 
-    @Query(value = "SELECT * FROM friend_comment WHERE sender_id = :senderId", nativeQuery = true)
-    Optional<FriendComment> findBySenderId(@Param("senderId")Integer senderId);
+    @Query(value = "SELECT * FROM friend_comment WHERE users_friends_id = :friendshipId ", nativeQuery = true)
+    Optional<FriendComment> findByFriendshipId(@Param("friendshipId")Integer friendshipId);
 
 }

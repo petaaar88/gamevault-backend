@@ -10,8 +10,7 @@ import java.util.Optional;
 public interface IFriendshipRepository extends JpaRepository<Friendship, Integer> {
 
     @Query(value = "SELECT * FROM users_friends " +
-            "WHERE (users_friends.user_id = :user1 AND users_friends.user_id1 = :user2) " +
-            "   OR (users_friends.user_id = :user2 AND users_friends.user_id1 = :user1)", nativeQuery = true)
-    Optional<Friendship> findByFriendsId(@Param("user1") Integer user1, @Param("user2") Integer user2);
+            "WHERE user_id = :userId AND user_id1 = :friendId ", nativeQuery = true)
+    Optional<Friendship> findByFriendsId(@Param("userId") Integer userId, @Param("friendId") Integer friendId);
 
 }

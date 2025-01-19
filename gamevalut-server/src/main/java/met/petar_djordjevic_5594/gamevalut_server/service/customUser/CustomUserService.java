@@ -215,35 +215,27 @@ public class CustomUserService {
 
     }
 
-    public void postFriendComment(Integer userId, Integer friendId) {
-        Optional<CustomUser> user = userRepository.findById(userId);
-        Optional<CustomUser> friend = userRepository.findById(friendId);
+    public void postCommentToFriendProfile(Integer userId, Integer friendId, NewFriendCommentDTO newFriendCommentDTO){
+        CustomUser user = this.getUserById(userId);
+        CustomUser friend = this.getUserById(userId);
 
-        if (user.isEmpty()) {
-            //TODO: Treba da se baci error da user nije pronadjen
-        }
+        Optional<Friendship> optionalFriendship = friendshipRepository.findByFriendsId(userId, friendId);
 
-        if (friend.isEmpty()) {
-            //TODO: Treba da se baci error da friend nije pronadjen
-        }
+        if(optionalFriendship.isEmpty())
+            throw new NoSuchElementException("Users are not friends!");
 
-        Optional<Friendship> friendship = friendshipRepository.findByFriendsId(userId, friendId);
+        Optional<FriendComment> comment = friendCommentRepostiory.findByFriendshipId(optionalFriendship.get().getId());
 
-        if (friendship.isEmpty()) {
-            //TODO: Treba da se baci error ako prijateljstvo ne postjoji
-        }
+        if(comment.isPresent())
+            throw new NoSuchElementException("Already have comment on friend profile!");
 
-        Optional<FriendComment> checkingComment = friendCommentRepostiory.findBySenderId(userId);
+        FriendComment newFriendComment = new FriendComment(newFriendCommentDTO.content(), LocalDate.now(),optionalFriendship.get());
 
-        if (checkingComment.isEmpty()) {
-            FriendComment comment = new FriendComment("najjaki igra", LocalDate.now(), friendship.get());
-            friendCommentRepostiory.save(comment);
-        } else {
-            //TODO: Baci error da postoji vec komentar
-        }
+        friendCommentRepostiory.save(newFriendComment);
 
 
     }
+
 
     public List<CustomUser> getOnlineFriends(Integer userId){
         CustomUser user = this.getUserById(userId);

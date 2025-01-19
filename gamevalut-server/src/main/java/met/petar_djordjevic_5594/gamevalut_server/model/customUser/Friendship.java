@@ -21,6 +21,8 @@ public class Friendship {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id1", nullable = false)
     private CustomUser user2;
+    @OneToOne(mappedBy = "friendship")
+    private FriendComment comment;
 
 
     public Friendship() {
@@ -65,5 +67,11 @@ public class Friendship {
         this.user2 = user2;
     }
 
+    public FriendComment getComment() {
+        return comment;
+    }
 
+    public void setComment(FriendComment comment) {
+        this.comment = comment;
+    }
 }

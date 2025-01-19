@@ -19,8 +19,8 @@ public class FriendComment {
             nullable = false
     )
     private LocalDate posted_at;
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "users_friends_id", nullable = false)
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "users_friends_id", referencedColumnName = "id")
     private Friendship friendship;
 
     public FriendComment() {
