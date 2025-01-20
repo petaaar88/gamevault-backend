@@ -87,16 +87,16 @@ public class GameController {
 
     @GetMapping("/collection/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public UserGameCollectionDTO getUsersGameCollection(@PathVariable("userId") Integer userId){
+    public List<GameInUserCollectionDTO> getUsersGameCollection(@PathVariable("userId") Integer userId){
         return gameService.getUsersGameCollection(userId);
     }
 
     //TODO: uradi za jednu korisnikovou igru
-//    @GetMapping("/collection/{userId}/{gameId}")
-//    @ResponseStatus(HttpStatus.OK)
-//    public SingleGameInCollectionDetailsDTO getSingleGameInCollection(@PathVariable("userId") Integer userId,@PathVariable("gameId") Integer gameId ){
-//        return gameService.getSingleGameInCollection(userId, gameId);
-//    }
+    @GetMapping("/collection/{userId}/{gameId}")
+    @ResponseStatus(HttpStatus.OK)
+    public GameInUserCollectionDetailsDTO getSingleGameInCollection(@PathVariable("userId") Integer userId,@PathVariable("gameId") Integer gameId ){
+        return gameService.getSingleGameInCollection(userId, gameId);
+    }
 
 
     @PostMapping("")

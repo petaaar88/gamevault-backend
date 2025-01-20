@@ -263,48 +263,52 @@ public class GameService {
 
         friends.forEach(friend -> {
             //TODO: dodaj loguku gde se vidi koliko sati je user igrao ovu igru
-            if (this.doesUserHaveGame(friend.getId(), gameId))
-                friendsThatOwnGame.add(userService.convertToFriendDTO(friend));
+            if (this.doesUserHaveGame(friend.getId(), gameId)){
+
+                AcquiredGameCopy acquiredGameCopy1 = friend.getAcquiredGameCopies().stream().filter(acquiredGameCopy -> acquiredGameCopy.getGame().getId() == gameId).findFirst().get();
+
+                friendsThatOwnGame.add(new FriendDTO(friend.getId(),friend.getUsername(),friend.getImageUrl(), acquiredGameCopy1.getTimePlayed(),null));
+            }
         });
 
         return friendsThatOwnGame;
 
     }
 
-    public GameSystemRequirementsDTO getSystemRequirementsForGame(Integer gameId){
+    public GameSystemRequirementsDTO getSystemRequirementsForGame(Integer gameId) {
         Game game = this.getGameById(gameId);
 
         Optional<List<GameSystemRequirements>> optionalGameSystemRequirements = gameRepository.findSystemRequirementsOfGame(gameId);
 
-        if(optionalGameSystemRequirements.get().size() != 2)
+        if (optionalGameSystemRequirements.get().size() != 2)
             throw new DataIntegrityViolationException("Must be two system requirements per game!");
 
         GameSystemRequirements minimum = optionalGameSystemRequirements.get().stream().filter(systemRequirements -> systemRequirements.getType() == GameSystemRequirementsType.Minimum).findFirst().get();
         GameSystemRequirements recommended = optionalGameSystemRequirements.get().stream().filter(systemRequirements -> systemRequirements.getType() == GameSystemRequirementsType.Recommended).findFirst().get();
 
-        NewGameSystemRequirementsDTO minDTO =  new NewGameSystemRequirementsDTO(minimum.getCpu(), minimum.getGpu(), minimum.getExpectedStorage(), minimum.getStorage(), minimum.getOperatingSystem(), minimum.getRam());
-        NewGameSystemRequirementsDTO reqDTO =  new NewGameSystemRequirementsDTO(recommended.getCpu(), recommended.getGpu(), recommended.getExpectedStorage(), recommended.getStorage(), recommended.getOperatingSystem(), recommended.getRam());
+        NewGameSystemRequirementsDTO minDTO = new NewGameSystemRequirementsDTO(minimum.getCpu(), minimum.getGpu(), minimum.getExpectedStorage(), minimum.getStorage(), minimum.getOperatingSystem(), minimum.getRam());
+        NewGameSystemRequirementsDTO reqDTO = new NewGameSystemRequirementsDTO(recommended.getCpu(), recommended.getGpu(), recommended.getExpectedStorage(), recommended.getStorage(), recommended.getOperatingSystem(), recommended.getRam());
 
-        return new GameSystemRequirementsDTO(minDTO,reqDTO);
+        return new GameSystemRequirementsDTO(minDTO, reqDTO);
 
     }
 
-    public GameOverallRatingDTO getOverallRating(Integer gameId){
+    public GameOverallRatingDTO getOverallRating(Integer gameId) {
         Game game = this.getGameById(gameId);
 
         GameRating overallRating = game.getOverallRating();
 
-        return new GameOverallRatingDTO(overallRating != null ? overallRating.getValue(): null, game.getNumberOfReviews());
+        return new GameOverallRatingDTO(overallRating != null ? overallRating.getValue() : null, game.getNumberOfReviews());
 
     }
 
-    public List<GameReviewDTO> getAllReviewsForGame(Integer gameId){
+    public List<GameReviewDTO> getAllReviewsForGame(Integer gameId) {
 
         Game game = this.getGameById(gameId);
 
         Optional<List<GameReview>> optionalGameReviews = gameRepository.findAllGameReviews(gameId);
 
-        if(optionalGameReviews.isEmpty())
+        if (optionalGameReviews.isEmpty())
             return new ArrayList<>();
 
         List<GameReviewDTO> gameReviewDTOS = new ArrayList<>();
@@ -312,38 +316,58 @@ public class GameService {
         optionalGameReviews.get().forEach(gameReview -> {
             CustomUser user = gameReview.getAcquiredGameCopy().getUser();
 
-            Map<String, String > userMap = new HashMap<>();
+            Map<String, String> userMap = new HashMap<>();
 
-            userMap.put("id",user.getId().toString());
+            userMap.put("id", user.getId().toString());
             userMap.put("username", user.getUsername());
             userMap.put("icon", user.getImageUrl());
-            gameReviewDTOS.add(new GameReviewDTO(gameReview.getContent(),gameReview.getRating().getValue(),LocalDate.now().toString(),userMap ));
+            gameReviewDTOS.add(new GameReviewDTO(gameReview.getContent(), gameReview.getRating().getValue(), LocalDate.now().toString(), userMap));
         });
 
         return gameReviewDTOS;
     }
 
-    public UserGameCollectionDTO getUsersGameCollection(Integer userId){
+    public List<GameInUserCollectionDTO> getUsersGameCollection(Integer userId) {
         CustomUser user = userService.getUserById(userId);
 
-        Optional<List<SingleGameInCollectionDTO>> optionalUserGameCollection = gameRepository.findAllUserGameCollection(userId);
+        Optional<List<Game>> optionalUserGameCollection = gameRepository.findAllUserGameCollection(userId);
 
-        if(optionalUserGameCollection.isEmpty())
-            return null;
-        return new UserGameCollectionDTO(optionalUserGameCollection.get());
+        if (optionalUserGameCollection.get().isEmpty())
+            return new ArrayList<>();
+
+        List<GameInUserCollectionDTO> usersGameCollection = new ArrayList<>();
+
+        optionalUserGameCollection.get().forEach(game -> {
+
+            game.getImages().forEach(gameImage -> {
+                if (gameImage.getType() == GameImageType.Icon)
+                    usersGameCollection.add(new GameInUserCollectionDTO(game.getId(), game.getTitle(), gameImage.getUrl()));
+
+            });
+
+        });
+
+        return usersGameCollection;
     }
 
     //TODO: uradi za jednu korisnikovou igru
-//    public SingleGameInCollectionDetailsDTO getSingleGameInCollection(Integer userId,Integer gameId){
-//        CustomUser user = userService.getUserById(userId);
-//        Game game = this.getGameById(gameId);
-//
-//        if(!this.doesUserHaveGame(user.getId(), game.getId()))
-//            throw new NoSuchElementException("User doesnt own this game!");
-//
-//
-//
-//    }
+    public GameInUserCollectionDetailsDTO getSingleGameInCollection(Integer userId,Integer gameId){
+        CustomUser user = userService.getUserById(userId);
+        Game game = this.getGameById(gameId);
+
+        if(!this.doesUserHaveGame(user.getId(), game.getId()))
+            throw new NoSuchElementException("User doesnt own this game!");
+
+        AcquiredGameCopy acquiredGameCopy =  user.getAcquiredGameCopies().stream().filter(acquiredGameCopy1-> acquiredGameCopy1.getGame().getId() == game.getId()).findFirst().get();
+
+
+        GameImage gameImage = game.getImages().stream().filter(gameImage1 -> gameImage1.getType() == GameImageType.Library).findFirst().get();
+
+
+        GameInUserCollectionDetailsDTO gameInUserCollectionDetailsDTO = new GameInUserCollectionDetailsDTO(game.getId(),acquiredGameCopy.getTimePlayed(),acquiredGameCopy.getLastPlayedAt(),game.getTitle(),game.getDescription(),gameImage.getUrl(),this.getFriendsThatOwnGame(game.getId(),userId));
+
+        return gameInUserCollectionDetailsDTO;
+    }
 
     public boolean doesUserHaveGame(Integer userId, Integer gameId) {
         Game game = this.getGameById(gameId);
