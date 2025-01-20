@@ -43,7 +43,10 @@ public class CustomUser {
     private List<FriendRequest> sentRequests= new ArrayList<>();
     @OneToMany(mappedBy = "uid2", cascade = CascadeType.ALL)
     private List<FriendRequest> receivedRequests= new ArrayList<>();
-
+    @OneToMany(mappedBy = "user1", cascade = CascadeType.ALL)
+    private List<Friendship> userWithFriends;
+    @OneToMany(mappedBy = "user2", cascade = CascadeType.ALL)
+    private List<Friendship> friendsWithUser;
 
     public CustomUser() {
     }
@@ -140,5 +143,21 @@ public class CustomUser {
 
     public void setReceivedRequests(List<FriendRequest> receivedRequests) {
         this.receivedRequests = receivedRequests;
+    }
+
+    public List<Friendship> getUserWithFriends() {
+        return userWithFriends;
+    }
+
+    public void setUserWithFriends(List<Friendship> userWithFriends) {
+        this.userWithFriends = userWithFriends;
+    }
+
+    public List<Friendship> getFriendsWithUser() {
+        return friendsWithUser;
+    }
+
+    public void setFriendsWithUser(List<Friendship> friendsWithUser) {
+        this.friendsWithUser = friendsWithUser;
     }
 }

@@ -140,19 +140,18 @@ public class CustomUserService {
     }
 
     @Transactional
-    public void acceptFriendRequest(Integer userId, Integer requestId){
+    public void acceptFriendRequest(Integer userId, Integer requestId) {
         CustomUser user = this.getUserById(userId);
 
         Optional<FriendRequest> optionalFriendRequest = friendRequestRepository.findById(requestId);
 
-        if(optionalFriendRequest.isEmpty())
+        if (optionalFriendRequest.isEmpty())
             throw new NoSuchElementException("Friend request does not exists!");
 
-        if(optionalFriendRequest.get().getUid1().getId() == userId)
+        if (optionalFriendRequest.get().getUid1().getId() == userId)
             throw new DataIntegrityViolationException("Invalid user Id!");
 
         CustomUser potentialFriend = optionalFriendRequest.get().getUid1();
-
 
 
         Friendship newUserFriend = new Friendship();
@@ -184,13 +183,13 @@ public class CustomUserService {
 
         Integer[] requestId = new Integer[1];
 
-        user.getReceivedRequests().forEach(request->{
-            if(request.getUid1().getId() == requestSenderId && request.getUid2().getId() == userId)
+        user.getReceivedRequests().forEach(request -> {
+            if (request.getUid1().getId() == requestSenderId && request.getUid2().getId() == userId)
                 requestId[0] = request.getId();
         });
 
 
-        if(requestId[0] == null)
+        if (requestId[0] == null)
             throw new NoSuchElementException("Friend Request does not exist!");
         System.out.println(requestId[0]);
 
@@ -204,48 +203,76 @@ public class CustomUserService {
 
     }
 
-    public UserDescriptionDTO getUserProfileDescription(Integer userId){
+    public UserDescriptionDTO getUserProfileDescription(Integer userId) {
         CustomUser user = this.getUserById(userId);
 
-        Map<String, String > nationality = new HashMap<>();
+        Map<String, String> nationality = new HashMap<>();
         nationality.put("name", user.getCountry().getName());
         nationality.put("icon", user.getCountry().getFlagUrl());
 
-        return new UserDescriptionDTO(user.getId(), user.getUsername(), user.getImageUrl(), user.getDescription(), nationality );
+        return new UserDescriptionDTO(user.getId(), user.getUsername(), user.getImageUrl(), user.getDescription(), nationality);
 
     }
 
-    public void postCommentToFriendProfile(Integer userId, Integer friendId, NewFriendCommentDTO newFriendCommentDTO){
+    public void postCommentToFriendProfile(Integer userId, Integer friendId, NewFriendCommentDTO newFriendCommentDTO) {
         CustomUser user = this.getUserById(userId);
         CustomUser friend = this.getUserById(userId);
 
         Optional<Friendship> optionalFriendship = friendshipRepository.findByFriendsId(userId, friendId);
 
-        if(optionalFriendship.isEmpty())
+        if (optionalFriendship.isEmpty())
             throw new NoSuchElementException("Users are not friends!");
 
         Optional<FriendComment> comment = friendCommentRepostiory.findByFriendshipId(optionalFriendship.get().getId());
 
-        if(comment.isPresent())
+        if (comment.isPresent())
             throw new NoSuchElementException("Already have comment on friend profile!");
 
-        FriendComment newFriendComment = new FriendComment(newFriendCommentDTO.content(), LocalDate.now(),optionalFriendship.get());
+        FriendComment newFriendComment = new FriendComment(newFriendCommentDTO.content(), LocalDate.now(), optionalFriendship.get());
 
         friendCommentRepostiory.save(newFriendComment);
 
 
     }
 
+    public List<FriendCommentDTO> getFriendComments(Integer userId) {
+        CustomUser user = this.getUserById(userId);
 
-    public List<CustomUser> getOnlineFriends(Integer userId){
+        List<CustomUser> friends = this.getAllFriends(userId);
+
+        if(friends.isEmpty())
+            return new ArrayList<>();
+
+
+        List<FriendCommentDTO> friendsComments = new ArrayList<>();
+
+
+        //TODO: kada ubacis JWT, proveri da li je user postavio komentar na prijateljevom nalogu
+        friends.forEach(friend->{
+            Friendship freindship =  friend.getUserWithFriends().stream().filter(user2-> user2.getUser2().getId() == userId).findFirst().get();
+
+            if(freindship.getComment() != null){
+
+                FriendComment comment = freindship.getComment();
+                friendsComments.add(new FriendCommentDTO(comment.getId(),new FriendDTO(friend.getId(), friend.getUsername(), friend.getImageUrl(),null,null), comment.getContent(), comment.getPosted_at() ));
+            }
+
+        });
+
+        return friendsComments;
+
+
+    }
+
+    public List<CustomUser> getOnlineFriends(Integer userId) {
         CustomUser user = this.getUserById(userId);
 
         List<CustomUser> friends = this.getAllFriends(userId);
 
         List<CustomUser> onlineFriends = new ArrayList<>();
 
-        friends.forEach(friend ->{
-            if(redisService.checkIfHashExist(friend.getId().toString()))
+        friends.forEach(friend -> {
+            if (redisService.checkIfHashExist(friend.getId().toString()))
                 onlineFriends.add(friend);
         });
 

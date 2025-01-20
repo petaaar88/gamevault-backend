@@ -3,6 +3,7 @@ package met.petar_djordjevic_5594.gamevalut_server.controller.customUser;
 import jakarta.validation.Valid;
 import met.petar_djordjevic_5594.gamevalut_server.exception.CannotAddFriendException;
 import met.petar_djordjevic_5594.gamevalut_server.exception.ResourceNotFoundException;
+import met.petar_djordjevic_5594.gamevalut_server.model.customUser.FriendCommentDTO;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.NewFriendCommentDTO;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.UserDescriptionDTO;
 import met.petar_djordjevic_5594.gamevalut_server.service.customUser.CustomUserService;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -39,6 +41,12 @@ public class CustomUserProfileController {
     @ResponseStatus(HttpStatus.CREATED)
     public void postCommentToFriendProfile(@PathVariable("userId") Integer userId, @PathVariable("friendId") Integer friendId, @Valid @RequestBody NewFriendCommentDTO newFriendCommentDTO) {
         userService.postCommentToFriendProfile(userId, friendId, newFriendCommentDTO);
+    }
+
+    @GetMapping("/comments/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<FriendCommentDTO> getComments(@PathVariable("userId") Integer userId) {
+        return userService.getFriendComments(userId);
     }
 
 
