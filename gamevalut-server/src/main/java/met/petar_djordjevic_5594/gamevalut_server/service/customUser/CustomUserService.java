@@ -66,6 +66,7 @@ public class CustomUserService {
         return optionalUser.get();
     }
 
+    // prepravi kod da bi izbrisao ovu funkciju
     public List<CustomUser> getAllFriends(Integer userId) {
 
         List<CustomUser> friends = new ArrayList<>();
@@ -75,6 +76,34 @@ public class CustomUserService {
             friends = optonalFriends.get();
 
         return friends;
+
+    }
+
+    public AllFriendsDTO getAllUsersFriends(Integer userId) {
+        CustomUser user = this.getUserById(userId);
+
+
+
+        List<FriendDTO> onlineFriends = new ArrayList<>();
+        List<FriendDTO> offlineFriends = new ArrayList<>();
+
+        user.getUserWithFriends().forEach(friendship -> {
+            CustomUser friend = friendship.getUser2();
+
+            if (redisService.checkIfHashExist(friend.getId().toString())) {
+                String friendGame =(String) redisService.getFromRedis(friend.getId().toString(),"plays");
+                onlineFriends.add(new FriendDTO(friend.getId(),friend.getUsername(),friend.getImageUrl(),null,friendGame));
+            } else
+                offlineFriends.add(new FriendDTO(friend.getId(),friend.getUsername(),friend.getImageUrl(),null,null));
+
+        });
+
+        Map<String, List<FriendDTO>> friends = new HashMap<>();
+
+        friends.put("online", onlineFriends);
+        friends.put("offline", offlineFriends);
+
+        return new AllFriendsDTO(friends);
 
     }
 
@@ -317,7 +346,7 @@ public class CustomUserService {
         List<FriendDTO> users = new ArrayList<>();
 
         optionalUsers.get().forEach(user -> {
-            users.add(new FriendDTO(user.getId(),user.getUsername(),user.getImageUrl(),null,null));
+            users.add(new FriendDTO(user.getId(), user.getUsername(), user.getImageUrl(), null, null));
         });
 
         return users;

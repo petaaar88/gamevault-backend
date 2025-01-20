@@ -2,10 +2,7 @@ package met.petar_djordjevic_5594.gamevalut_server.controller.customUser;
 
 import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
-import met.petar_djordjevic_5594.gamevalut_server.model.customUser.CustomUser;
-import met.petar_djordjevic_5594.gamevalut_server.model.customUser.FriendDTO;
-import met.petar_djordjevic_5594.gamevalut_server.model.customUser.LoginUserDTO;
-import met.petar_djordjevic_5594.gamevalut_server.model.customUser.NewCustomUserDTO;
+import met.petar_djordjevic_5594.gamevalut_server.model.customUser.*;
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.ICustomUserRepository;
 import met.petar_djordjevic_5594.gamevalut_server.service.customUser.CustomUserService;
 import met.petar_djordjevic_5594.gamevalut_server.service.notification.UserOnlineNotificationService;
@@ -55,9 +52,9 @@ public class CustomUserController {
 
     }
 
-    @GetMapping("/{userId}/friends")
-    private void getAllFriends(@PathVariable("userId") Integer userId) {
-        System.out.println("Nesto se desilo");
+    @GetMapping("/friends/{userId}")
+    private AllFriendsDTO getAllFriends(@PathVariable("userId") Integer userId) {
+        return userService.getAllUsersFriends(userId);
     }
 
     @GetMapping("/search")
