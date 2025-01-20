@@ -66,6 +66,14 @@ public class CustomUserService {
         return optionalUser.get();
     }
 
+    public boolean isUserOnline(Integer userId){
+        return redisService.checkIfHashExist(this.getUserById(userId).getId().toString());
+    }
+
+    public boolean isUserInGame(Integer userId){
+        return redisService.checkIfHashExist(this.getUserById(userId).getId().toString(),"plays");
+    }
+
     // prepravi kod da bi izbrisao ovu funkciju
     public List<CustomUser> getAllFriends(Integer userId) {
 

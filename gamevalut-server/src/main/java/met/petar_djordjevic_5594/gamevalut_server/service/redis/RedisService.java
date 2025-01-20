@@ -27,4 +27,8 @@ public class RedisService {
         redisTemplate.delete(key);
     }
 
+    public boolean checkIfHashExist(String key, String hash){
+        return Boolean.TRUE.equals(redisTemplate.opsForHash().hasKey(key, hash));
+    }
+
 }
