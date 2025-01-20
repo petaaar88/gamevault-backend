@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 public interface ICustomUserRepository extends JpaRepository<CustomUser, Integer> {
 
@@ -16,9 +16,6 @@ public interface ICustomUserRepository extends JpaRepository<CustomUser, Integer
     @Query(value = "SELECT user.* FROM users_friends JOIN user ON user.id = users_friends.user_id1 WHERE user_id = :userId\n ", nativeQuery = true)
     Optional<List<CustomUser>> findAllFriends(@Param("userId")Integer userId);
 
-    @Query(value = "SELECT * FROM friend_request WHERE uid1 = :userId OR uid2 = :userId", nativeQuery = true)
-    Optional<List<CustomUser>> findAllFrinedsRequests(@Param("userId")Integer userId);
-
-    @Query(value = "select * from user where username = :usern", nativeQuery = true)
-    Optional<CustomUser> findByUsername(@Param("usern")String username);
+    @Query(value = "SELECT * FROM user WHERE username LIKE %:username% ", nativeQuery = true)
+    Optional<List<CustomUser>> findByUsername(@Param("username")String username);
 }

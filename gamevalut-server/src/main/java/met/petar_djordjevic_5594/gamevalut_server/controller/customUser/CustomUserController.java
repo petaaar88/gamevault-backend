@@ -1,7 +1,9 @@
 package met.petar_djordjevic_5594.gamevalut_server.controller.customUser;
 
 import jakarta.validation.Valid;
+import jakarta.websocket.server.PathParam;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.CustomUser;
+import met.petar_djordjevic_5594.gamevalut_server.model.customUser.FriendDTO;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.LoginUserDTO;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.NewCustomUserDTO;
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.ICustomUserRepository;
@@ -33,39 +35,39 @@ public class CustomUserController {
     RedisService redisService;
 
     @PostMapping("/login")
-    private void login(@Valid @RequestBody LoginUserDTO loginUserDTO){
+    private void login(@Valid @RequestBody LoginUserDTO loginUserDTO) {
 
-        CustomUser user = userRepository.findByUsername(loginUserDTO.username()).get();
+        List<CustomUser> users = userRepository.findByUsername(loginUserDTO.username()).get();
+
+        CustomUser user = users.get(0);
         System.out.println("Prijavlej je korisnik sa ID:" + user.getId() + ", username: " + user.getUsername());
 
         //TODO: prepravi logiku i izbrisi ovo
-        redisService.saveToRedis(user.getId().toString(),"username", user.getUsername());
+        redisService.saveToRedis(user.getId().toString(), "username", user.getUsername());
 
         List<CustomUser> onlineFriends = userService.getOnlineFriends(user.getId());
 
-        userOnlineNotificationService.notifyOnlineFriends(user,onlineFriends);
+        userOnlineNotificationService.notifyOnlineFriends(user, onlineFriends);
     }
 
     @PostMapping("/register")
-    private void register(@Valid @RequestBody NewCustomUserDTO newCustomUserDTO){
+    private void register(@Valid @RequestBody NewCustomUserDTO newCustomUserDTO) {
 
     }
 
     @GetMapping("/{userId}/friends")
-    private void getAllFriends(@PathVariable("userId") Integer userId){
+    private void getAllFriends(@PathVariable("userId") Integer userId) {
         System.out.println("Nesto se desilo");
     }
 
-    @GetMapping("/search?username={username}&limit={limit}")
-    private void search(@PathVariable("username") String username, @PathVariable("Limit") Integer limit){
-
+    @GetMapping("/search")
+    private List<FriendDTO> search(@PathParam("username") String username, @PathParam("limit") Integer limit) {
+        return userService.searchUsers(username);
     }
 
-
     @DeleteMapping("/logout/{userId}")
-    private  void logout(@PathVariable("userId") Integer userId){
-        //TODO: uradi bolju logiku za logout
-
+    private void logout(@PathVariable("userId") Integer userId) {
+        userService.logout(userId);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

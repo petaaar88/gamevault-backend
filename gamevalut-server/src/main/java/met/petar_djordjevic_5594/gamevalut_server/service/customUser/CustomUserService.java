@@ -240,7 +240,7 @@ public class CustomUserService {
 
         List<CustomUser> friends = this.getAllFriends(userId);
 
-        if(friends.isEmpty())
+        if (friends.isEmpty())
             return new ArrayList<>();
 
 
@@ -248,13 +248,13 @@ public class CustomUserService {
 
 
         //TODO: kada ubacis JWT, proveri da li je user postavio komentar na prijateljevom nalogu
-        friends.forEach(friend->{
-            Friendship freindship =  friend.getUserWithFriends().stream().filter(user2-> user2.getUser2().getId() == userId).findFirst().get();
+        friends.forEach(friend -> {
+            Friendship freindship = friend.getUserWithFriends().stream().filter(user2 -> user2.getUser2().getId() == userId).findFirst().get();
 
-            if(freindship.getComment() != null){
+            if (freindship.getComment() != null) {
 
                 FriendComment comment = freindship.getComment();
-                friendsComments.add(new FriendCommentDTO(comment.getId(),new FriendDTO(friend.getId(), friend.getUsername(), friend.getImageUrl(),null,null), comment.getContent(), comment.getPosted_at() ));
+                friendsComments.add(new FriendCommentDTO(comment.getId(), new FriendDTO(friend.getId(), friend.getUsername(), friend.getImageUrl(), null, null), comment.getContent(), comment.getPosted_at()));
             }
 
         });
@@ -279,23 +279,48 @@ public class CustomUserService {
         return onlineFriends;
     }
 
-    public void updateUser(Integer userId, UpdatedCustomUserDTO updatedCustomUserDTO){
+    public void updateUser(Integer userId, UpdatedCustomUserDTO updatedCustomUserDTO) {
         CustomUser user = this.getUserById(userId);
 
-        if(updatedCustomUserDTO.description() == null && updatedCustomUserDTO.icon() == null && updatedCustomUserDTO.username() == null)
+        if (updatedCustomUserDTO.description() == null && updatedCustomUserDTO.icon() == null && updatedCustomUserDTO.username() == null)
             return;
 
-        if(updatedCustomUserDTO.username() != null)
+        if (updatedCustomUserDTO.username() != null)
             user.setUsername(updatedCustomUserDTO.username());
 
-        if(updatedCustomUserDTO.icon() != null)
+        if (updatedCustomUserDTO.icon() != null)
             user.setImageUrl(updatedCustomUserDTO.icon());
 
-        if(updatedCustomUserDTO.description() != null)
+        if (updatedCustomUserDTO.description() != null)
             user.setDescription(updatedCustomUserDTO.description());
 
         userRepository.save(user);
 
+    }
+
+    public void logout(Integer userId) {
+        CustomUser user = this.getUserById(userId);
+
+        if (!redisService.checkIfHashExist(user.getId().toString()))
+            throw new NoSuchElementException("User is not online!");
+
+        //TODO: ucini jwt nevalidinim
+        redisService.deleteFromRedis(user.getId().toString());
+    }
+
+    public List<FriendDTO> searchUsers(String username) {
+        Optional<List<CustomUser>> optionalUsers = userRepository.findByUsername(username);
+
+        if (optionalUsers.isEmpty())
+            return new ArrayList<>();
+
+        List<FriendDTO> users = new ArrayList<>();
+
+        optionalUsers.get().forEach(user -> {
+            users.add(new FriendDTO(user.getId(),user.getUsername(),user.getImageUrl(),null,null));
+        });
+
+        return users;
     }
 
     public CustomUser convertToEntity(NewCustomUserDTO newCustomUserDTO) {
