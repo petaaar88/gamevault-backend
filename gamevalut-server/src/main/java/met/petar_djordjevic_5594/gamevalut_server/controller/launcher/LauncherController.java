@@ -28,6 +28,12 @@ public class LauncherController {
         launcherService.play(userId,gameId);
     }
 
+    @DeleteMapping("/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void exitGame(@PathVariable("userId") Integer userId){
+        launcherService.exit(userId);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
 

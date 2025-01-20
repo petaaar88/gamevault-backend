@@ -40,4 +40,19 @@ public class LauncherService {
         redisService.saveToRedis(user.getId().toString(),"plays",game.getTitle());
 
     }
+
+    public void exit(Integer userId){
+        CustomUser user = userService.getUserById(userId);
+
+        if(!userService.isUserOnline(userId))
+            throw  new DataIntegrityViolationException("User must be online to exit this game!");
+
+        if(!userService.isUserInGame(userId))
+            throw  new DataIntegrityViolationException("User must be in game!");
+
+
+        redisService.deleteHashFromRedis(user.getId().toString(), "plays");
+
+
+    }
 }
