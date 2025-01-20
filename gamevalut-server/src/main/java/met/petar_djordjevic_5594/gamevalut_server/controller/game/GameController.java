@@ -99,12 +99,6 @@ public class GameController {
 //    }
 
 
-    @PostMapping("/games/{gameId}/{userId}")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void addGameToUsersGameCollection(@PathVariable("userId") Integer userId,@PathVariable("gameId") Integer gameId){
-        gameService.addGameToUserCollection(userId, gameId);
-    }
-
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     public void createGame(@Valid @RequestBody NewGameDTO newGameDTO) {

@@ -5,6 +5,7 @@ import met.petar_djordjevic_5594.gamevalut_server.exception.CannotAddFriendExcep
 import met.petar_djordjevic_5594.gamevalut_server.exception.ResourceNotFoundException;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.FriendCommentDTO;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.NewFriendCommentDTO;
+import met.petar_djordjevic_5594.gamevalut_server.model.customUser.UpdatedCustomUserDTO;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.UserDescriptionDTO;
 import met.petar_djordjevic_5594.gamevalut_server.service.customUser.CustomUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,11 @@ public class CustomUserProfileController {
         return userService.getFriendComments(userId);
     }
 
+    @PatchMapping("/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateUser(@PathVariable("userId") Integer userId, @RequestBody UpdatedCustomUserDTO updatedCustomUserDTO){
+        userService.updateUser(userId, updatedCustomUserDTO);
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {

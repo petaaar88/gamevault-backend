@@ -279,6 +279,25 @@ public class CustomUserService {
         return onlineFriends;
     }
 
+    public void updateUser(Integer userId, UpdatedCustomUserDTO updatedCustomUserDTO){
+        CustomUser user = this.getUserById(userId);
+
+        if(updatedCustomUserDTO.description() == null && updatedCustomUserDTO.icon() == null && updatedCustomUserDTO.username() == null)
+            return;
+
+        if(updatedCustomUserDTO.username() != null)
+            user.setUsername(updatedCustomUserDTO.username());
+
+        if(updatedCustomUserDTO.icon() != null)
+            user.setImageUrl(updatedCustomUserDTO.icon());
+
+        if(updatedCustomUserDTO.description() != null)
+            user.setDescription(updatedCustomUserDTO.description());
+
+        userRepository.save(user);
+
+    }
+
     public CustomUser convertToEntity(NewCustomUserDTO newCustomUserDTO) {
         return new CustomUser(newCustomUserDTO.username(), newCustomUserDTO.password());
     }

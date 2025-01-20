@@ -156,6 +156,7 @@ public class GameService {
         gameRepository.save(game);
     }
 
+    //TODO: dodaj da sa se updejtuje review za igricy
     public void addReview(Integer userId, Integer gameId, NewGameReviewDTO newGameReviewDTO) {
 
         GameRating gameRating;
