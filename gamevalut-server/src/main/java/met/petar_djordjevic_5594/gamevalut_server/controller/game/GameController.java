@@ -1,9 +1,11 @@
 package met.petar_djordjevic_5594.gamevalut_server.controller.game;
 
 import jakarta.validation.Valid;
+import met.petar_djordjevic_5594.gamevalut_server.exception.PaginationException;
 import met.petar_djordjevic_5594.gamevalut_server.exception.ResourceNotFoundException;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.FriendDTO;
 import met.petar_djordjevic_5594.gamevalut_server.model.game.*;
+import met.petar_djordjevic_5594.gamevalut_server.model.pagination.Pages;
 import met.petar_djordjevic_5594.gamevalut_server.service.game.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -31,10 +33,10 @@ public class GameController {
 
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
-    public List<GameOverviewDTO> getAll(@RequestParam(defaultValue = "1") Integer page,
-                                        @RequestParam(defaultValue = "10") Integer size) {
+    public Pages getAll(@RequestParam(name = "page", defaultValue = "0") Integer page,
+                        @RequestParam(name = "limit", defaultValue = "6") Integer limit) {
         //TODO: uradi paginaciju
-        return gameService.getAll();
+        return gameService.getAll(page, limit);
     }
 
     @GetMapping("/{id}/reviews")
@@ -87,14 +89,14 @@ public class GameController {
 
     @GetMapping("/collection/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public List<GameInUserCollectionDTO> getUsersGameCollection(@PathVariable("userId") Integer userId){
+    public List<GameInUserCollectionDTO> getUsersGameCollection(@PathVariable("userId") Integer userId) {
         return gameService.getUsersGameCollection(userId);
     }
 
-    //TODO: uradi za jednu korisnikovou igru
+
     @GetMapping("/collection/{userId}/{gameId}")
     @ResponseStatus(HttpStatus.OK)
-    public GameInUserCollectionDetailsDTO getSingleGameInCollection(@PathVariable("userId") Integer userId,@PathVariable("gameId") Integer gameId ){
+    public GameInUserCollectionDetailsDTO getSingleGameInCollection(@PathVariable("userId") Integer userId, @PathVariable("gameId") Integer gameId) {
         return gameService.getSingleGameInCollection(userId, gameId);
     }
 
@@ -141,7 +143,15 @@ public class GameController {
         gameService.addReview(userId, gameId, newGameReviewDTO);
     }
 
+    @ExceptionHandler(PaginationException.class)
+    public ResponseEntity<Map<String, String>> handelPaginationException(PaginationException ex) {
 
+        Map<String, String> errorMessage = new HashMap<>();
+        errorMessage.put("message", ex.getMessage());
+
+        return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {

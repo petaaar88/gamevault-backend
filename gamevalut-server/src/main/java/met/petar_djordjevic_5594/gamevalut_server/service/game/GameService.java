@@ -1,16 +1,19 @@
 package met.petar_djordjevic_5594.gamevalut_server.service.game;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import met.petar_djordjevic_5594.gamevalut_server.exception.PaginationException;
 import met.petar_djordjevic_5594.gamevalut_server.exception.ResourceNotFoundException;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.FriendDTO;
 import met.petar_djordjevic_5594.gamevalut_server.model.game.AcquiredGameCopy;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.CustomUser;
 import met.petar_djordjevic_5594.gamevalut_server.model.game.*;
+import met.petar_djordjevic_5594.gamevalut_server.model.pagination.Page;
+import met.petar_djordjevic_5594.gamevalut_server.model.pagination.Pages;
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IAcquiredGameCopyRepository;
 import met.petar_djordjevic_5594.gamevalut_server.repository.game.IGameRepository;
 import met.petar_djordjevic_5594.gamevalut_server.repository.game.IGameReviewRepository;
 import met.petar_djordjevic_5594.gamevalut_server.repository.game.IGenreRepository;
 import met.petar_djordjevic_5594.gamevalut_server.service.customUser.CustomUserService;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -213,6 +216,81 @@ public class GameService {
         return games;
     }
 
+    public Pages getAll(Integer page, Integer limit) {
+        List<GameOverviewDTO> games = new ArrayList<>();
+
+        Pages<GameOverviewDTO> pages = new Pages<GameOverviewDTO>();
+
+        if (page < 1)
+            throw new PaginationException("Page must be postive number!");
+
+        if (limit < 1)
+            throw new PaginationException("Limit must be postive number!");
+
+        page -= 1;
+        Integer offset = page * limit;
+
+        Long numberOfGames = gameRepository.count();
+        final Integer maxPage =  (int) Math.ceil((double) numberOfGames / limit);
+        final Integer minPage = 1;
+
+        Integer nextPagesNumber;
+
+
+        if ((maxPage - (page + 1)) == 0)
+            nextPagesNumber = 0;
+        else if ((maxPage - (page + 1)) == 1)
+            nextPagesNumber = 1;
+        else if ((maxPage - (page + 1)) == 2)
+            nextPagesNumber = 2;
+        else
+            nextPagesNumber = 2;
+
+        List<Page> nextPages = new ArrayList<>();
+
+        if (nextPagesNumber != 0 && page < maxPage){
+
+            for (Integer i = 1; i <= nextPagesNumber; i++) {
+                nextPages.add(new Page(page + 1 + i, limit));
+            }
+        }
+
+        pages.setNextPages(nextPages);
+
+        Integer previousPageNumber;
+
+        if(minPage == (page +1))
+            previousPageNumber = 0;
+        else if((minPage +1) == (page +1))
+            previousPageNumber = 1;
+        else
+            previousPageNumber  =2;
+
+
+
+        List<Page> previousPages = new ArrayList<>();
+
+        if (previousPageNumber != 0 && page < maxPage) {
+            for (Integer i = page; (i >= page - 1 && i != 0); i--) {
+                previousPages.add(new Page(i, limit));
+            }
+            previousPages =  previousPages.reversed();
+        }
+
+        pages.setPreviousPages(previousPages);
+
+
+
+        gameRepository.findByFilterAndPaginate(limit, offset).get().forEach(game -> {
+            games.add(this.convertToOverviewDTO(game));
+        });
+
+
+        pages.setResoult(games);
+
+        return pages;
+    }
+
     public List<GameProductPageImage> getProductPageImages(Integer gameId) {
 
         Game game = this.getGameById(gameId);
@@ -249,6 +327,7 @@ public class GameService {
         return game.getDownloadUrl();
     }
 
+    //TODO: testiraj ovu metodu
     public List<FriendDTO> getFriendsThatOwnGame(Integer gameId, Integer userId) {
 
         Game game = this.getGameById(gameId);
@@ -262,12 +341,12 @@ public class GameService {
         List<FriendDTO> friendsThatOwnGame = new ArrayList<>();
 
         friends.forEach(friend -> {
-            //TODO: dodaj loguku gde se vidi koliko sati je user igrao ovu igru
-            if (this.doesUserHaveGame(friend.getId(), gameId)){
+
+            if (this.doesUserHaveGame(friend.getId(), gameId)) {
 
                 AcquiredGameCopy acquiredGameCopy1 = friend.getAcquiredGameCopies().stream().filter(acquiredGameCopy -> acquiredGameCopy.getGame().getId() == gameId).findFirst().get();
 
-                friendsThatOwnGame.add(new FriendDTO(friend.getId(),friend.getUsername(),friend.getImageUrl(), acquiredGameCopy1.getTimePlayed(),null));
+                friendsThatOwnGame.add(new FriendDTO(friend.getId(), friend.getUsername(), friend.getImageUrl(), acquiredGameCopy1.getTimePlayed(), null));
             }
         });
 
@@ -350,21 +429,20 @@ public class GameService {
         return usersGameCollection;
     }
 
-    //TODO: uradi za jednu korisnikovou igru
-    public GameInUserCollectionDetailsDTO getSingleGameInCollection(Integer userId,Integer gameId){
+    public GameInUserCollectionDetailsDTO getSingleGameInCollection(Integer userId, Integer gameId) {
         CustomUser user = userService.getUserById(userId);
         Game game = this.getGameById(gameId);
 
-        if(!this.doesUserHaveGame(user.getId(), game.getId()))
+        if (!this.doesUserHaveGame(user.getId(), game.getId()))
             throw new NoSuchElementException("User doesnt own this game!");
 
-        AcquiredGameCopy acquiredGameCopy =  user.getAcquiredGameCopies().stream().filter(acquiredGameCopy1-> acquiredGameCopy1.getGame().getId() == game.getId()).findFirst().get();
+        AcquiredGameCopy acquiredGameCopy = user.getAcquiredGameCopies().stream().filter(acquiredGameCopy1 -> acquiredGameCopy1.getGame().getId() == game.getId()).findFirst().get();
 
 
         GameImage gameImage = game.getImages().stream().filter(gameImage1 -> gameImage1.getType() == GameImageType.Library).findFirst().get();
 
 
-        GameInUserCollectionDetailsDTO gameInUserCollectionDetailsDTO = new GameInUserCollectionDetailsDTO(game.getId(),acquiredGameCopy.getTimePlayed(),acquiredGameCopy.getLastPlayedAt(),game.getTitle(),game.getDescription(),gameImage.getUrl(),this.getFriendsThatOwnGame(game.getId(),userId));
+        GameInUserCollectionDetailsDTO gameInUserCollectionDetailsDTO = new GameInUserCollectionDetailsDTO(game.getId(), acquiredGameCopy.getTimePlayed(), acquiredGameCopy.getLastPlayedAt(), game.getTitle(), game.getDescription(), gameImage.getUrl(), this.getFriendsThatOwnGame(game.getId(), userId));
 
         return gameInUserCollectionDetailsDTO;
     }
