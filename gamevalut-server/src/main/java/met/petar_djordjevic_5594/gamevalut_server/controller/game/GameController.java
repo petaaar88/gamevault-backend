@@ -31,11 +31,11 @@ public class GameController {
     public GameController() {
     }
 
+    //TODO: uradi i da moze i po filterima da se dobije rezultat
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
     public Pages getAll(@RequestParam(name = "page", defaultValue = "0") Integer page,
                         @RequestParam(name = "limit", defaultValue = "6") Integer limit) {
-        //TODO: uradi paginaciju
         return gameService.getAll(page, limit);
     }
 
