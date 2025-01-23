@@ -9,7 +9,7 @@ import java.util.List;
 
 public class Paginator<T> {
 
-    public static <T> Pages getResoultAndPages( Integer currentPage, Integer limit, Long maxNumberOfElements, List<T> resoult) {
+    public static <T> Pages getResoultAndPages(Integer currentPage, Integer limit, Long maxNumberOfElements, List<T> resoult) {
 
         if (currentPage < 1)
             throw new PaginationException("Page must be postive number!");
@@ -27,6 +27,11 @@ public class Paginator<T> {
 
         Integer nextPagesNumber;
 
+        //TODO: naparavi da mozes da imas dinamican broj stranica, dodaj jos jedan argument funkciji koji ce da se zove numberOfVisiblePages
+//        if((maxPage - (currentPage + 1)) >= maxPage)
+//            nextPagesNumber = maxPage - (currentPage + 1);
+//        else
+//            nextPagesNumber = numberOfVisiblePages;
 
         if ((maxPage - (currentPage + 1)) == 0)
             nextPagesNumber = 0;

@@ -227,7 +227,7 @@ public class GameService {
             games.add(this.convertToOverviewDTO(game));
         });
 
-        return Paginator.getResoultAndPages(page, limit, gameRepository.count(), games);
+        return Paginator.getResoultAndPages( page, limit, gameRepository.count(), games);
     }
 
     public List<GameProductPageImage> getProductPageImages(Integer gameId) {
