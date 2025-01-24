@@ -15,6 +15,7 @@ import met.petar_djordjevic_5594.gamevalut_server.utils.Paginator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
 import java.time.LocalDate;
@@ -159,20 +160,27 @@ public class GameService {
     }
 
     //TODO: dodaj da sa se updejtuje review za igricy
+    @Transactional
     public void addReview(Integer userId, Integer gameId, NewGameReviewDTO newGameReviewDTO) {
 
         GameRating gameRating;
+        Double gameRatingPointPercentage;
 
         if (newGameReviewDTO.rating().equalsIgnoreCase("Positive")) {
             gameRating = GameRating.Positive;
+            gameRatingPointPercentage = 75.0;
         } else if (newGameReviewDTO.rating().equalsIgnoreCase("Mostly_Positive")) {
             gameRating = GameRating.Mostly_Positive;
+            gameRatingPointPercentage = 100.0;
         } else if (newGameReviewDTO.rating().equalsIgnoreCase("Mixed")) {
             gameRating = GameRating.Mixed;
+            gameRatingPointPercentage = 50.0;
         } else if (newGameReviewDTO.rating().equalsIgnoreCase("Negative")) {
             gameRating = GameRating.Negative;
+            gameRatingPointPercentage = 25.0;
         } else if (newGameReviewDTO.rating().equalsIgnoreCase("Mostly_Negative")) {
             gameRating = GameRating.Mostly_Negative;
+            gameRatingPointPercentage = 0.0;
         } else {
             throw new NoSuchElementException("Wrong rating type!");
         }
@@ -202,6 +210,39 @@ public class GameService {
         optionalAcquiredGameCopy.get().setGameReview(gameReview);
 
         acquiredGameCopyRepository.save(optionalAcquiredGameCopy.get());
+
+        //TODO:
+        BigInteger numberOfReviews = game.getNumberOfReviews();
+
+        GameRating overallRating = game.getOverallRating();
+        Double overallPercentage = game.getOverallRatingPercentage();
+
+        if(overallPercentage == null)
+            overallPercentage = 0.0;
+
+        Double totalGameReviewPointsPercentage = overallPercentage * numberOfReviews.doubleValue();
+
+        totalGameReviewPointsPercentage += gameRatingPointPercentage;
+        numberOfReviews =  numberOfReviews.add(BigInteger.ONE);
+
+        Double newOverallPercentage = totalGameReviewPointsPercentage / numberOfReviews.doubleValue();
+
+        game.setOverallRatingPercentage(newOverallPercentage);
+        game.setNumberOfReviews(numberOfReviews);
+
+        if (newOverallPercentage >= 87.5)
+            game.setOverallRating(GameRating.Mostly_Positive);
+        else if (newOverallPercentage >= 62.5)
+            game.setOverallRating(GameRating.Positive);
+        else if (newOverallPercentage >= 37.5)
+            game.setOverallRating(GameRating.Positive);
+        else if (newOverallPercentage >= 12.5)
+            game.setOverallRating(GameRating.Positive);
+        else if (newOverallPercentage < 12.5)
+            game.setOverallRating(GameRating.Mostly_Negative);
+
+        gameRepository.save(game);
+
     }
 
     public List<GameOverviewDTO> getAll() {
@@ -221,13 +262,13 @@ public class GameService {
 
         List<GameOverviewDTO> games = new ArrayList<>();
 
-        Integer offset = (page -1) * limit;
+        Integer offset = (page - 1) * limit;
 
         gameRepository.findByFilterAndPaginate(limit, offset).get().forEach(game -> {
             games.add(this.convertToOverviewDTO(game));
         });
 
-        return Paginator.getResoultAndPages( page, limit, gameRepository.count(), games);
+        return Paginator.getResoultAndPages(page, limit, gameRepository.count(), games);
     }
 
     public List<GameProductPageImage> getProductPageImages(Integer gameId) {

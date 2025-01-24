@@ -40,7 +40,7 @@ public class Game {
     @Column( name = "overall_rating" )
     private GameRating overallRating;
     @Column( name = "overall_rating_percentage" )
-    private Integer overallRatingPercentage;
+    private Double overallRatingPercentage;
     @Column(
             name = "release_date",
             nullable = false
@@ -71,7 +71,7 @@ public class Game {
         this.title = title;
     }
 
-    public Game(LocalDate deploymentDate, String description, String developer, String downloadUrl, BigInteger numberOfAcquisitions, BigInteger numberOfReviews, GameRating overallRating, Integer overallRatingPercentage, LocalDate releaseDate, String title) {
+    public Game(LocalDate deploymentDate, String description, String developer, String downloadUrl, BigInteger numberOfAcquisitions, BigInteger numberOfReviews, GameRating overallRating, Double overallRatingPercentage, LocalDate releaseDate, String title) {
         this.deploymentDate = deploymentDate;
         this.description = description;
         this.developer = developer;
@@ -164,11 +164,11 @@ public class Game {
         this.overallRating = overallRating;
     }
 
-    public Integer getOverallRatingPercentage() {
+    public Double getOverallRatingPercentage() {
         return overallRatingPercentage;
     }
 
-    public void setOverallRatingPercentage(Integer overallRatingPercentage) {
+    public void setOverallRatingPercentage(Double overallRatingPercentage) {
         this.overallRatingPercentage = overallRatingPercentage;
     }
 
