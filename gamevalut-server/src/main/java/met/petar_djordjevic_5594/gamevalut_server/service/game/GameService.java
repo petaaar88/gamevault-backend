@@ -60,6 +60,8 @@ public class GameService {
 
         newGame.setNumberOfAcquisitions(BigInteger.ZERO);
         newGame.setNumberOfReviews(BigInteger.ZERO);
+        newGame.setDeploymentDate(LocalDate.now());
+
         gameRepository.save(newGame);
     }
 
@@ -155,11 +157,10 @@ public class GameService {
         acquiredGameCopy.setTimePlayed(BigInteger.ZERO);
 
         game.getAcquiredGameCopies().add(acquiredGameCopy);
-
+        game.setNumberOfAcquisitions(game.getNumberOfAcquisitions().add(BigInteger.ONE));
         gameRepository.save(game);
     }
 
-    //TODO: dodaj da sa se updejtuje review za igricy
     @Transactional
     public void addReview(Integer userId, Integer gameId, NewGameReviewDTO newGameReviewDTO) {
 
@@ -211,7 +212,6 @@ public class GameService {
 
         acquiredGameCopyRepository.save(optionalAcquiredGameCopy.get());
 
-        //TODO:
         BigInteger numberOfReviews = game.getNumberOfReviews();
 
         GameRating overallRating = game.getOverallRating();
