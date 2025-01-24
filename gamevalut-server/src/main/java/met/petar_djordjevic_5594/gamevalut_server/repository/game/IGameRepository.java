@@ -22,7 +22,7 @@ public interface IGameRepository extends JpaRepository<Game, Integer> {
     @Query(value = "SELECT * FROM game_system_requirements WHERE game_id = :gameId", nativeQuery = true)
     Optional<List<GameSystemRequirements>> findSystemRequirementsOfGame(@Param("gameId") Integer gameId);
 
-    @Query(value = "SELECT * FROM game_review JOIN users_games ON game_review.users_games_id = users_games.id WHERE users_games.game_id = :gameId",nativeQuery = true)
+    @Query(value = "SELECT game_review.* FROM game_review JOIN users_games ON game_review.users_games_id = users_games.id WHERE users_games.game_id = :gameId",nativeQuery = true)
     Optional<List<GameReview>> findAllGameReviews(@Param("gameId")Integer gameId);
 
     @Query(value = "SELECT " +

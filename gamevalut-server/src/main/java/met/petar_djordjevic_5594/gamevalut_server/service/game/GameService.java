@@ -295,7 +295,7 @@ public class GameService {
             genres.add(genre.getName());
         });
 
-        return new GameDescriptionDTO(game.getDescription(), genres, game.getDeveloper(), game.getReleaseDate().toString());
+        return new GameDescriptionDTO(game.getTitle() ,game.getDescription(), genres, game.getDeveloper(), game.getReleaseDate().toString());
     }
 
     public String getDownloadURL(Integer gameId) {
@@ -361,7 +361,7 @@ public class GameService {
 
     }
 
-    public List<GameReviewDTO> getAllReviewsForGame(Integer gameId) {
+    public List<GameReviewDTO> getAllReviewsForGame(Integer gameId, Integer page, Integer limit) {
 
         Game game = this.getGameById(gameId);
 
