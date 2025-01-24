@@ -361,7 +361,7 @@ public class GameService {
 
     }
 
-    public List<GameReviewDTO> getAllReviewsForGame(Integer gameId, Integer page, Integer limit) {
+    public List<GameReviewDTO> getAllReviewsForGame(Integer gameId) {
 
         Game game = this.getGameById(gameId);
 
@@ -380,10 +380,41 @@ public class GameService {
             userMap.put("id", user.getId().toString());
             userMap.put("username", user.getUsername());
             userMap.put("icon", user.getImageUrl());
-            gameReviewDTOS.add(new GameReviewDTO(gameReview.getContent(), gameReview.getRating().getValue(), LocalDate.now().toString(), userMap));
+            gameReviewDTOS.add(new GameReviewDTO(gameReview.getContent(), gameReview.getRating().getValue(), gameReview.getPostedAt().toString(), userMap));
         });
 
         return gameReviewDTOS;
+    }
+
+    public Pages getAllReviewsForGame(Integer gameId, Integer page, Integer limit){
+        Paginator.validatePageAndLimit(page, limit);
+
+        Game game = this.getGameById(gameId);
+
+        List<GameReviewDTO> games = new ArrayList<>();
+
+        Integer offset = (page - 1) * limit;
+
+        List<GameReview> gameReviews = gameReviewRepository.findByGameIdAndPaginate(gameId,limit, offset).get();
+
+        if(gameReviews.isEmpty())
+            return Paginator.getResoultAndPages(page, limit, gameReviewRepository.countReviewsByGameId(gameId), null);
+
+        List<GameReviewDTO> gameReviewDTOS = new ArrayList<>();
+
+
+        gameReviews.forEach(gameReview -> {
+            CustomUser user = gameReview.getAcquiredGameCopy().getUser();
+
+            Map<String, String> userMap = new HashMap<>();
+
+            userMap.put("id", user.getId().toString());
+            userMap.put("username", user.getUsername());
+            userMap.put("icon", user.getImageUrl());
+            gameReviewDTOS.add(new GameReviewDTO(gameReview.getContent(), gameReview.getRating().getValue(), gameReview.getPostedAt().toString(), userMap));
+        });
+
+        return Paginator.getResoultAndPages(page, limit, gameReviewRepository.countReviewsByGameId(gameId), gameReviewDTOS);
     }
 
     public List<GameInUserCollectionDTO> getUsersGameCollection(Integer userId) {

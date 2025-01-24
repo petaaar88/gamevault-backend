@@ -41,7 +41,7 @@ public class GameController {
 
     @GetMapping("/{id}/reviews")
     @ResponseStatus(HttpStatus.OK)
-    public List<GameReviewDTO> getAllReviewsForGame(@RequestParam(name = "page", defaultValue = "1") Integer page,
+    public Pages getAllReviewsForGame(@RequestParam(name = "page", defaultValue = "1") Integer page,
                                                     @RequestParam(name = "limit", defaultValue = "5") Integer limit, @PathVariable("id") Integer gameId) {
         //TODO: uradi paginaciju
         return gameService.getAllReviewsForGame(gameId, page, limit);
