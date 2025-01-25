@@ -458,6 +458,20 @@ public class GameService {
         return gameInUserCollectionDetailsDTO;
     }
 
+    public void updateUserGamePlaytime(Integer gameId,Integer userId,UpdateUserGamePlaytimeDTO updateUserGamePlaytimeDTO){
+        Game game = this.getGameById(gameId);
+        CustomUser user = userService.getUserById(userId);
+        if(!this.doesUserHaveGame(gameId,userId))
+            throw new NoSuchElementException("User doesnt own game!");
+
+        AcquiredGameCopy acquiredGameCopy = user.getAcquiredGameCopies().stream().filter(acquiredGameCopy1 -> acquiredGameCopy1.getGame().getId() == gameId).findFirst().get();
+
+        acquiredGameCopy.setLastPlayedAt(updateUserGamePlaytimeDTO.lastPlayedAt());
+        acquiredGameCopy.setTimePlayed(acquiredGameCopy.getTimePlayed().add(updateUserGamePlaytimeDTO.timePlayed()));
+
+        acquiredGameCopyRepository.save(acquiredGameCopy);
+    }
+
     public boolean doesUserHaveGame(Integer userId, Integer gameId) {
         Game game = this.getGameById(gameId);
         CustomUser user = userService.getUserById(userId);

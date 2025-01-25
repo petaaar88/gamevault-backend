@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -43,7 +44,6 @@ public class GameController {
     @ResponseStatus(HttpStatus.OK)
     public Pages getAllReviewsForGame(@RequestParam(name = "page", defaultValue = "1") Integer page,
                                                     @RequestParam(name = "limit", defaultValue = "5") Integer limit, @PathVariable("id") Integer gameId) {
-        //TODO: uradi paginaciju
         return gameService.getAllReviewsForGame(gameId, page, limit);
     }
 
@@ -141,6 +141,23 @@ public class GameController {
     @ResponseStatus(HttpStatus.CREATED)
     public void addReview(@PathVariable("gameId") Integer gameId, @PathVariable("userId") Integer userId, @Valid @RequestBody NewGameReviewDTO newGameReviewDTO) {
         gameService.addReview(userId, gameId, newGameReviewDTO);
+    }
+
+    @PatchMapping("/collection/{userId}/{gameId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateUserGamePlaytime(@PathVariable("gameId") Integer gameId, @PathVariable("userId") Integer userId, @Valid @RequestBody UpdateUserGamePlaytimeDTO updateUserGamePlaytimeDTO){
+        gameService.updateUserGamePlaytime(gameId, userId, updateUserGamePlaytimeDTO);
+    }
+
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, String>> handelHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+
+        Map<String, String> errorMessage = new HashMap<>();
+        errorMessage.put("message", ex.getMessage());
+
+        return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+
     }
 
     @ExceptionHandler(PaginationException.class)
