@@ -8,7 +8,7 @@ import java.util.List;
 
 public record GameInUserCollectionDetailsDTO(
         Integer id,
-        BigInteger playTime,
+        Double playTime,
         LocalDateTime lastPlayed,
         String title,
         String description,

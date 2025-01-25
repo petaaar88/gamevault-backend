@@ -10,7 +10,7 @@ public record FriendDTO(
         Integer id,
         String username,
         String icon,
-        BigInteger hoursPlayed,
+        Double hoursPlayed,
         String inGame
 ) {
 }

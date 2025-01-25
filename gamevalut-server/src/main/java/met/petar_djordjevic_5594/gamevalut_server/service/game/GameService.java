@@ -307,7 +307,6 @@ public class GameService {
         return game.getDownloadUrl();
     }
 
-    //TODO: testiraj ovu metodu
     public List<FriendDTO> getFriendsThatOwnGame(Integer gameId, Integer userId) {
 
         Game game = this.getGameById(gameId);
@@ -325,8 +324,8 @@ public class GameService {
             if (this.doesUserHaveGame(friend.getId(), gameId)) {
 
                 AcquiredGameCopy acquiredGameCopy1 = friend.getAcquiredGameCopies().stream().filter(acquiredGameCopy -> acquiredGameCopy.getGame().getId() == gameId).findFirst().get();
-
-                friendsThatOwnGame.add(new FriendDTO(friend.getId(), friend.getUsername(), friend.getImageUrl(), acquiredGameCopy1.getTimePlayed(), null));
+                Double timePlayed = (double) acquiredGameCopy1.getTimePlayed().intValue() / 3600000;
+                friendsThatOwnGame.add(new FriendDTO(friend.getId(), friend.getUsername(), friend.getImageUrl(), timePlayed, null));
             }
         });
 
@@ -452,8 +451,8 @@ public class GameService {
 
         GameImage gameImage = game.getImages().stream().filter(gameImage1 -> gameImage1.getType() == GameImageType.Library).findFirst().get();
 
-
-        GameInUserCollectionDetailsDTO gameInUserCollectionDetailsDTO = new GameInUserCollectionDetailsDTO(game.getId(), acquiredGameCopy.getTimePlayed(), acquiredGameCopy.getLastPlayedAt(), game.getTitle(), game.getDescription(), gameImage.getUrl(), this.getFriendsThatOwnGame(game.getId(), userId));
+        Double timePlayed = (double) acquiredGameCopy.getTimePlayed().intValue() / 3600000;
+        GameInUserCollectionDetailsDTO gameInUserCollectionDetailsDTO = new GameInUserCollectionDetailsDTO(game.getId(), timePlayed, acquiredGameCopy.getLastPlayedAt(), game.getTitle(), game.getDescription(), gameImage.getUrl(), this.getFriendsThatOwnGame(game.getId(), userId));
 
         return gameInUserCollectionDetailsDTO;
     }
