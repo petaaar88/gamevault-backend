@@ -10,8 +10,11 @@ import java.util.Optional;
 
 public interface IGameRepository extends JpaRepository<Game, Integer> {
 
-    @Query(value = "SELECT * FROM game LIMIT :limit OFFSET :offset", nativeQuery = true)
-    Optional<List<Game>> findByFilterAndPaginate(@Param("limit")Integer limit, @Param("offset") Integer offset);
+    @Query(value = "SELECT * FROM game WHERE title LIKE CONCAT('%', :title, '%')  LIMIT :limit OFFSET :offset", nativeQuery = true)
+    Optional<List<Game>> findByFilterAndPaginate(@Param("limit")Integer limit, @Param("offset") Integer offset , @Param("title") String title);
+
+    @Query(value = "SELECT COUNT(id) FROM game WHERE title LIKE CONCAT('%', :title, '%')", nativeQuery = true)
+    Long countFindByFilterAndPaginate(@Param("title") String title);
 
     @Query(value = "SELECT * FROM game WHERE game.title LIKE :title", nativeQuery = true)
     Optional<Game> findByTitle(@Param("title") String title);

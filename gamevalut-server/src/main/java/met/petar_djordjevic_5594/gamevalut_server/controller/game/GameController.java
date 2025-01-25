@@ -36,8 +36,9 @@ public class GameController {
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
     public Pages getAll(@RequestParam(name = "page", defaultValue = "0") Integer page,
-                        @RequestParam(name = "limit", defaultValue = "6") Integer limit) {
-        return gameService.getAll(page, limit);
+                        @RequestParam(name = "limit", defaultValue = "6") Integer limit,
+                        @RequestParam(name = "title", defaultValue = "") String title) {
+        return gameService.getAll(page, limit, title);
     }
 
     @GetMapping("/{id}/reviews")

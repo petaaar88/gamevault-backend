@@ -256,7 +256,7 @@ public class GameService {
         return games;
     }
 
-    public Pages getAll(Integer page, Integer limit) {
+    public Pages getAll(Integer page, Integer limit, String title) {
 
         Paginator.validatePageAndLimit(page, limit);
 
@@ -264,11 +264,13 @@ public class GameService {
 
         Integer offset = (page - 1) * limit;
 
-        gameRepository.findByFilterAndPaginate(limit, offset).get().forEach(game -> {
+        System.out.println("Broj igara : "+gameRepository.countFindByFilterAndPaginate(title));
+
+        gameRepository.findByFilterAndPaginate(limit, offset, title).get().forEach(game -> {
             games.add(this.convertToOverviewDTO(game));
         });
 
-        return Paginator.getResoultAndPages(page, limit, gameRepository.count(), games);
+        return Paginator.getResoultAndPages(page, limit, gameRepository.countFindByFilterAndPaginate(title), games);
     }
 
     public List<GameProductPageImage> getProductPageImages(Integer gameId) {
