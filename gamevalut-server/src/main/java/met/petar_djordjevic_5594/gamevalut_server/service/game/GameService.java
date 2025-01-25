@@ -320,6 +320,7 @@ public class GameService {
 
         Game game = this.getGameById(gameId);
 
+
         List<GameProductPageImage> images = new ArrayList<>();
 
         game.getImages().forEach(gameImage -> {
@@ -333,6 +334,9 @@ public class GameService {
     public GameDescriptionDTO getDescription(Integer gameId) {
 
         Game game = this.getGameById(gameId);
+
+        if(game.getPublished().booleanValue() == false)
+            throw new NoSuchElementException("Game not found!");
 
         List<String> genres = new ArrayList<>();
 

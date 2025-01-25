@@ -3,12 +3,14 @@ package met.petar_djordjevic_5594.gamevalut_server.service.customUser;
 import met.petar_djordjevic_5594.gamevalut_server.exception.CannotAddFriendException;
 import met.petar_djordjevic_5594.gamevalut_server.model.country.Country;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.*;
+import met.petar_djordjevic_5594.gamevalut_server.model.pagination.Pages;
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.ICustomUserRepository;
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IFriendCommentRepostiory;
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IFriendRequestRepository;
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IFriendshipRepository;
 import met.petar_djordjevic_5594.gamevalut_server.service.country.CountryService;
 import met.petar_djordjevic_5594.gamevalut_server.service.redis.RedisService;
+import met.petar_djordjevic_5594.gamevalut_server.utils.Paginator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -345,19 +347,20 @@ public class CustomUserService {
         redisService.deleteFromRedis(user.getId().toString());
     }
 
-    public List<FriendDTO> searchUsers(String username) {
-        Optional<List<CustomUser>> optionalUsers = userRepository.findByUsername(username);
+    public Pages searchUsers(String username, Integer page, Integer limit) {
 
-        if (optionalUsers.isEmpty())
-            return new ArrayList<>();
+        Paginator.validatePageAndLimit(page,limit);
+
+        Integer offset = (page - 1) * limit;
 
         List<FriendDTO> users = new ArrayList<>();
 
-        optionalUsers.get().forEach(user -> {
+        userRepository.findByUsernameAndPaginate(username,offset, limit ).get().forEach(user -> {
             users.add(new FriendDTO(user.getId(), user.getUsername(), user.getImageUrl(), null, null));
         });
 
-        return users;
+
+        return Paginator.getResoultAndPages(page,limit, userRepository.countByUsername(username), users);
     }
 
     public CustomUser convertToEntity(NewCustomUserDTO newCustomUserDTO) {

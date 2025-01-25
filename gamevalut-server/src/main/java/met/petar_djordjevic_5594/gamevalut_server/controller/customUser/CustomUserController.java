@@ -3,6 +3,7 @@ package met.petar_djordjevic_5594.gamevalut_server.controller.customUser;
 import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.*;
+import met.petar_djordjevic_5594.gamevalut_server.model.pagination.Pages;
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.ICustomUserRepository;
 import met.petar_djordjevic_5594.gamevalut_server.service.customUser.CustomUserService;
 import met.petar_djordjevic_5594.gamevalut_server.service.notification.UserOnlineNotificationService;
@@ -58,8 +59,8 @@ public class CustomUserController {
     }
 
     @GetMapping("/search")
-    private List<FriendDTO> search(@PathParam("username") String username, @PathParam("limit") Integer limit) {
-        return userService.searchUsers(username);
+    private Pages search(@PathParam("username") String username, @PathParam("page") Integer page, @PathParam("limit") Integer limit) {
+        return userService.searchUsers(username, page, limit);
     }
 
     @DeleteMapping("/logout/{userId}")
