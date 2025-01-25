@@ -27,6 +27,9 @@ public class CustomUser {
     private String password;
     @Column(name = "description")
     private String description;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private CustomUserRole role;
     @Column(name = "image_url")
     private String imageUrl;
     @Column(
@@ -159,5 +162,13 @@ public class CustomUser {
 
     public void setFriendsWithUser(List<Friendship> friendsWithUser) {
         this.friendsWithUser = friendsWithUser;
+    }
+
+    public CustomUserRole getRole() {
+        return role;
+    }
+
+    public void setRole(CustomUserRole role) {
+        this.role = role;
     }
 }
