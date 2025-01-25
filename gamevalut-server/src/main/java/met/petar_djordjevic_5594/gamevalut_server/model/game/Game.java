@@ -2,6 +2,7 @@ package met.petar_djordjevic_5594.gamevalut_server.model.game;
 
 import jakarta.persistence.*;
 
+import javax.naming.Name;
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -32,15 +33,20 @@ public class Game {
             nullable = false
     )
     private String downloadUrl;
-    @Column( name = "number_of_acquisitions" )
+    @Column(name = "number_of_acquisitions")
     private BigInteger numberOfAcquisitions;
-    @Column( name = "number_of_reviews" )
+    @Column(name = "number_of_reviews")
     private BigInteger numberOfReviews;
     @Enumerated(EnumType.STRING)
-    @Column( name = "overall_rating" )
+    @Column(name = "overall_rating")
     private GameRating overallRating;
-    @Column( name = "overall_rating_percentage" )
+    @Column(name = "overall_rating_percentage")
     private Double overallRatingPercentage;
+    @Column(
+            name = "isPublished",
+            nullable = false
+    )
+    private Boolean isPublished;
     @Column(
             name = "release_date",
             nullable = false
@@ -202,5 +208,13 @@ public class Game {
 
     public void setReleaseDate(LocalDate releaseDate) {
         this.releaseDate = releaseDate;
+    }
+
+    public Boolean getPublished() {
+        return isPublished;
+    }
+
+    public void setPublished(Boolean published) {
+        isPublished = published;
     }
 }

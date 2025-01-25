@@ -138,6 +138,51 @@ public class GameService {
 
     }
 
+    public void publishGame(Integer gameId){
+        Game game = this.getGameById(gameId);
+
+
+        if(game.getGenres().size() == 0)
+            throw new DataIntegrityViolationException("No genres provided for this game");
+
+        boolean haveIconImage = false;
+        boolean haveProductPageImage = false;
+        boolean haveCatalogImage = false;
+        boolean haveLibraryImage = false;
+
+        for(GameImage image : game.getImages()){
+            if(image.getType() == GameImageType.Catalog)
+                haveCatalogImage = true;
+            if(image.getType() == GameImageType.Icon)
+                haveIconImage = true;
+            if(image.getType() == GameImageType.Library)
+                haveLibraryImage = true;
+            if(image.getType() == GameImageType.Product_Page)
+                haveProductPageImage = true;
+        }
+
+
+        if(!haveCatalogImage)
+            throw new DataIntegrityViolationException("No catalog image provided!");
+        if(!haveIconImage)
+            throw new DataIntegrityViolationException("No icon image provided!");
+        if(!haveLibraryImage)
+            throw new DataIntegrityViolationException("No library image provided!");
+        if(!haveProductPageImage)
+            throw new DataIntegrityViolationException("No product page image provided!");
+
+        if(game.getSystemRequirements().stream().filter(requirements->requirements.getType() == GameSystemRequirementsType.Minimum).findFirst().isEmpty())
+            throw new DataIntegrityViolationException("No minimum system requirments provided!");
+
+        if(game.getSystemRequirements().stream().filter(requirements->requirements.getType() == GameSystemRequirementsType.Recommended).findFirst().isEmpty())
+            throw new DataIntegrityViolationException("No recommended system requirments provided!");
+
+        game.setPublished(true);
+        game.setDeploymentDate(LocalDate.now());
+
+        gameRepository.save(game);
+    }
+
     public void addGameToUserCollection(Integer userId, Integer gameId) {
         CustomUser user = userService.getUserById(userId);
         Game game = this.getGameById(gameId);
@@ -263,8 +308,6 @@ public class GameService {
         List<GameOverviewDTO> games = new ArrayList<>();
 
         Integer offset = (page - 1) * limit;
-
-        System.out.println("Broj igara : "+gameRepository.countFindByFilterAndPaginate(title));
 
         gameRepository.findByFilterAndPaginate(limit, offset, title).get().forEach(game -> {
             games.add(this.convertToOverviewDTO(game));
@@ -504,7 +547,8 @@ public class GameService {
         rating.put("rating", (game.getOverallRating() != null) ? game.getOverallRating().getValue() : null);
         rating.put("rating_percentage", (game.getOverallRatingPercentage() != null) ? game.getOverallRatingPercentage().toString() : null);
         rating.put("reviews", game.getNumberOfReviews().toString());
-        return new GameOverviewDTO(game.getId(), game.getTitle(), game.getNumberOfAcquisitions(), game.getDeveloper(), rating);
+        GameImage gameImage = game.getImages().stream().filter(gameImage1 -> gameImage1.getType() == GameImageType.Catalog).findFirst().get();
+        return new GameOverviewDTO(game.getId(), game.getTitle(),gameImage.getUrl() ,game.getNumberOfAcquisitions(), game.getDeveloper(), rating);
     }
 
 }

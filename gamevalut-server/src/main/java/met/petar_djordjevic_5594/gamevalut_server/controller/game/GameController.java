@@ -7,6 +7,7 @@ import met.petar_djordjevic_5594.gamevalut_server.model.customUser.FriendDTO;
 import met.petar_djordjevic_5594.gamevalut_server.model.game.*;
 import met.petar_djordjevic_5594.gamevalut_server.model.pagination.Pages;
 import met.petar_djordjevic_5594.gamevalut_server.service.game.GameService;
+import org.json.HTTP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -32,7 +33,6 @@ public class GameController {
     public GameController() {
     }
 
-    //TODO: uradi i da moze i po filterima da se dobije rezultat
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
     public Pages getAll(@RequestParam(name = "page", defaultValue = "0") Integer page,
@@ -120,9 +120,15 @@ public class GameController {
         gameService.addGenreToGame(gameId, genreId);
     }
 
+    @PostMapping("/publish/{gameId}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void publishGame(@PathVariable("gameId") Integer gameId){
+        gameService.publishGame(gameId);
+    }
+
     @PostMapping("/{gameId}/system-requirements")
     @ResponseStatus(HttpStatus.CREATED)
-    public void addSystemRequirements(@PathVariable("gameId") Integer gameId, @RequestParam("type") String type, @Valid @RequestBody NewGameSystemRequirementsDTO newGameSystemRequirementsDTO) {
+    public void addSystemRequirements(@PathVariable("gameId") Integer gameId, @RequestParam(name = "type", defaultValue = "recommended") String type, @Valid @RequestBody NewGameSystemRequirementsDTO newGameSystemRequirementsDTO) {
         gameService.addSystemRequirements(gameId, type, newGameSystemRequirementsDTO);
     }
 

@@ -11,9 +11,9 @@ import java.util.Optional;
 public class CountryService {
     @Autowired
     ICountryRepository countryRepository;
+    //@Autowired
+    //CountryAPIService countryAPIService;
 
-    public CountryService() {
-    }
 
     public void addCountry(Country newCountry){
         countryRepository.save(newCountry);
@@ -22,5 +22,9 @@ public class CountryService {
     public Optional<Country> findById(Integer id){
         return countryRepository.findById(id);
     }
+
+  //  public String getAllCountriesFromApi(){
+  //      return countryAPIService.getAllCountries();
+  //  }
 
 }
