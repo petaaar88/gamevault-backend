@@ -7,6 +7,7 @@ import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.ICustomU
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IFriendCommentRepostiory;
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IFriendRequestRepository;
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IFriendshipRepository;
+import met.petar_djordjevic_5594.gamevalut_server.service.notification.FriendRequestNotificationService;
 import met.petar_djordjevic_5594.gamevalut_server.service.redis.RedisService;
 import met.petar_djordjevic_5594.gamevalut_server.utils.Paginator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,8 @@ public class CustomUserService {
     IFriendRequestRepository friendRequestRepository;
     @Autowired
     RedisService redisService;
+    @Autowired
+    FriendRequestNotificationService friendRequestNotificationService;
 
 
     public CustomUserService() {
@@ -58,12 +61,12 @@ public class CustomUserService {
         return optionalUser.get();
     }
 
-    public boolean isUserOnline(Integer userId){
+    public boolean isUserOnline(Integer userId) {
         return redisService.checkIfHashExist(this.getUserById(userId).getId().toString());
     }
 
-    public boolean isUserInGame(Integer userId){
-        return redisService.checkIfHashExist(this.getUserById(userId).getId().toString(),"plays");
+    public boolean isUserInGame(Integer userId) {
+        return redisService.checkIfHashExist(this.getUserById(userId).getId().toString(), "plays");
     }
 
     // prepravi kod da bi izbrisao ovu funkciju
@@ -83,7 +86,6 @@ public class CustomUserService {
         CustomUser user = this.getUserById(userId);
 
 
-
         List<FriendDTO> onlineFriends = new ArrayList<>();
         List<FriendDTO> offlineFriends = new ArrayList<>();
 
@@ -91,10 +93,10 @@ public class CustomUserService {
             CustomUser friend = friendship.getUser2();
 
             if (redisService.checkIfHashExist(friend.getId().toString())) {
-                String friendGame =(String) redisService.getFromRedis(friend.getId().toString(),"plays");
-                onlineFriends.add(new FriendDTO(friend.getId(),friend.getUsername(),friend.getImageUrl(),null,friendGame));
+                String friendGame = (String) redisService.getFromRedis(friend.getId().toString(), "plays");
+                onlineFriends.add(new FriendDTO(friend.getId(), friend.getUsername(), friend.getImageUrl(), null, friendGame));
             } else
-                offlineFriends.add(new FriendDTO(friend.getId(),friend.getUsername(),friend.getImageUrl(),null,null));
+                offlineFriends.add(new FriendDTO(friend.getId(), friend.getUsername(), friend.getImageUrl(), null, null));
 
         });
 
@@ -141,6 +143,9 @@ public class CustomUserService {
 
         userRepository.save(user);
 
+        if (redisService.checkIfHashExist(potentialFriend.getId().toString()))
+            friendRequestNotificationService.notifyOnlineFriends(potentialFriend, user);
+
     }
 
     public FriendRequestsDTO getAllFriendRequests(Integer userId) {
@@ -151,14 +156,14 @@ public class CustomUserService {
 
         if (!user.getSentRequests().isEmpty()) {
             user.getSentRequests().forEach(request -> {
-                sentRequest.add(new SingleFriendRequestDTO(request.getId(),new FriendDTO(request.getUid2().getId(), request.getUid2().getUsername(), request.getUid2().getImageUrl(), null, null) ));
+                sentRequest.add(new SingleFriendRequestDTO(request.getId(), new FriendDTO(request.getUid2().getId(), request.getUid2().getUsername(), request.getUid2().getImageUrl(), null, null)));
             });
         }
 
         if (!user.getReceivedRequests().isEmpty()) {
             user.getReceivedRequests().forEach(request -> {
                 if (request.getUid2().getId() == userId) {
-                    receivedRequest.add(new SingleFriendRequestDTO(request.getId(),new FriendDTO(request.getUid1().getId(), request.getUid1().getUsername(), request.getUid1().getImageUrl(), null, null)));
+                    receivedRequest.add(new SingleFriendRequestDTO(request.getId(), new FriendDTO(request.getUid1().getId(), request.getUid1().getUsername(), request.getUid1().getImageUrl(), null, null)));
 
                 }
             });
@@ -210,7 +215,7 @@ public class CustomUserService {
 
         Optional<FriendRequest> optionalFriendRequest = friendRequestRepository.findById(requestId);
 
-        if(optionalFriendRequest.isEmpty())
+        if (optionalFriendRequest.isEmpty())
             throw new NoSuchElementException("Request not found");
 
         friendRequestRepository.deleteById(requestId);
@@ -320,18 +325,18 @@ public class CustomUserService {
 
     public Pages searchUsers(String username, Integer page, Integer limit) {
 
-        Paginator.validatePageAndLimit(page,limit);
+        Paginator.validatePageAndLimit(page, limit);
 
         Integer offset = (page - 1) * limit;
 
         List<FriendDTO> users = new ArrayList<>();
 
-        userRepository.findByUsernameAndPaginate(username,offset, limit ).get().forEach(user -> {
+        userRepository.findByUsernameAndPaginate(username, offset, limit).get().forEach(user -> {
             users.add(new FriendDTO(user.getId(), user.getUsername(), user.getImageUrl(), null, null));
         });
 
 
-        return Paginator.getResoultAndPages(page,limit, userRepository.countByUsername(username), users);
+        return Paginator.getResoultAndPages(page, limit, userRepository.countByUsername(username), users);
     }
 
     public CustomUser convertToEntity(NewCustomUserDTO newCustomUserDTO) {

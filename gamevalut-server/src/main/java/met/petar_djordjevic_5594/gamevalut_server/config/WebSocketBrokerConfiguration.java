@@ -17,7 +17,7 @@ public class WebSocketBrokerConfiguration implements WebSocketMessageBrokerConfi
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/user_online_notification");
+        registry.enableSimpleBroker("/user-online-notification","/friend-request-notification");
         registry.setApplicationDestinationPrefixes("/app");
     }
 }

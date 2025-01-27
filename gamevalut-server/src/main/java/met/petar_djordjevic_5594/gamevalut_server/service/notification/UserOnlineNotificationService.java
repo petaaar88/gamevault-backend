@@ -20,7 +20,7 @@ public class UserOnlineNotificationService {
 
     public void notifyOnlineFriends(CustomUser user, List<CustomUser> onlineFriends){
         onlineFriends.forEach(friend ->{
-            messagingTemplate.convertAndSend("/user_online_notification/"+friend.getId().toString(),new FriendDTO(user.getId(), user.getUsername(), user.getImageUrl(), null,null));
+            messagingTemplate.convertAndSend("/user-online-notification/"+friend.getId().toString(),new FriendDTO(user.getId(), user.getUsername(), user.getImageUrl(), null,null));
         });
     }
 
