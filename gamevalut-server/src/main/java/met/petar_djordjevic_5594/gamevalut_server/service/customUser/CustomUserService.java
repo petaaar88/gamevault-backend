@@ -1,14 +1,12 @@
 package met.petar_djordjevic_5594.gamevalut_server.service.customUser;
 
 import met.petar_djordjevic_5594.gamevalut_server.exception.CannotAddFriendException;
-import met.petar_djordjevic_5594.gamevalut_server.model.country.Country;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.*;
 import met.petar_djordjevic_5594.gamevalut_server.model.pagination.Pages;
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.ICustomUserRepository;
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IFriendCommentRepostiory;
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IFriendRequestRepository;
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IFriendshipRepository;
-import met.petar_djordjevic_5594.gamevalut_server.service.country.CountryService;
 import met.petar_djordjevic_5594.gamevalut_server.service.redis.RedisService;
 import met.petar_djordjevic_5594.gamevalut_server.utils.Paginator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +30,6 @@ public class CustomUserService {
     @Autowired
     RedisService redisService;
 
-    @Autowired
-    CountryService countryService;
 
     public CustomUserService() {
     }
@@ -45,12 +41,6 @@ public class CustomUserService {
     public void addUser(NewCustomUserDTO newCustomUserDTO) {
 
         CustomUser newUser = convertToEntity(newCustomUserDTO);
-
-        Optional<Country> userCountry = countryService.findById(Integer.parseInt(newCustomUserDTO.countryId()));
-
-        newUser.setCountry(userCountry.get());
-
-        System.out.println(newUser.getCountry());
 
         newUser.setCreatedAt(LocalDate.now());
 
@@ -245,11 +235,7 @@ public class CustomUserService {
     public UserDescriptionDTO getUserProfileDescription(Integer userId) {
         CustomUser user = this.getUserById(userId);
 
-        Map<String, String> nationality = new HashMap<>();
-        nationality.put("name", user.getCountry().getName());
-        nationality.put("icon", user.getCountry().getFlagUrl());
-
-        return new UserDescriptionDTO(user.getId(), user.getUsername(), user.getImageUrl(), user.getDescription(), nationality);
+        return new UserDescriptionDTO(user.getId(), user.getUsername(), user.getImageUrl(), user.getDescription());
 
     }
 

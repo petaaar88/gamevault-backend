@@ -7,7 +7,6 @@ public record UserDescriptionDTO(
         Integer id,
         String username,
         String icon,
-        String description,
-        Map<String, String> nationality
+        String description
 ) {
 }

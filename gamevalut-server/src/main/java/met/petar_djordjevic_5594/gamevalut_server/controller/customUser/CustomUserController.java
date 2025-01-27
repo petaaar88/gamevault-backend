@@ -59,7 +59,7 @@ public class CustomUserController {
     }
 
     @GetMapping("/search")
-    private Pages search(@PathParam("username") String username, @PathParam("page") Integer page, @PathParam("limit") Integer limit) {
+    private Pages search(@RequestParam(name = "username", defaultValue = "") String username, @RequestParam(name = "page", defaultValue = "1") Integer page, @RequestParam(name = "limit", defaultValue = "3") Integer limit) {
         return userService.searchUsers(username, page, limit);
     }
 

@@ -1,7 +1,6 @@
 package met.petar_djordjevic_5594.gamevalut_server.model.customUser;
 
 import jakarta.persistence.*;
-import met.petar_djordjevic_5594.gamevalut_server.model.country.Country;
 import met.petar_djordjevic_5594.gamevalut_server.model.game.AcquiredGameCopy;
 
 import java.time.LocalDate;
@@ -37,9 +36,6 @@ public class CustomUser {
             nullable = false
     )
     private LocalDate createdAt;
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "country_id", nullable = false)
-    private Country country;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<AcquiredGameCopy> acquiredGameCopies = new ArrayList<>();
     @OneToMany(mappedBy = "uid1", cascade = CascadeType.ALL)
@@ -59,13 +55,12 @@ public class CustomUser {
         this.password = password;
     }
 
-    public CustomUser(String username, String password, String description, String imageUrl, LocalDate createdAt, Country country) {
+    public CustomUser(String username, String password, String description, String imageUrl, LocalDate createdAt) {
         this.username = username;
         this.password = password;
         this.description = description;
         this.imageUrl = imageUrl;
         this.createdAt = createdAt;
-        this.country = country;
     }
 
     public Integer getId() {
@@ -114,14 +109,6 @@ public class CustomUser {
 
     public void setCreatedAt(LocalDate createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public Country getCountry() {
-        return country;
-    }
-
-    public void setCountry(Country country) {
-        this.country = country;
     }
 
     public List<AcquiredGameCopy> getAcquiredGameCopies() {
