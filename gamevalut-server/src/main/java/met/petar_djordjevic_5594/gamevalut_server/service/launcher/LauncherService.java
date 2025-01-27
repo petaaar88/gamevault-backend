@@ -4,11 +4,13 @@ import met.petar_djordjevic_5594.gamevalut_server.model.customUser.CustomUser;
 import met.petar_djordjevic_5594.gamevalut_server.model.game.Game;
 import met.petar_djordjevic_5594.gamevalut_server.service.customUser.CustomUserService;
 import met.petar_djordjevic_5594.gamevalut_server.service.game.GameService;
+import met.petar_djordjevic_5594.gamevalut_server.service.notification.FriendEnteredGameNotificationService;
 import met.petar_djordjevic_5594.gamevalut_server.service.redis.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -20,6 +22,8 @@ public class LauncherService {
     GameService gameService;
     @Autowired
     RedisService redisService;
+    @Autowired
+    FriendEnteredGameNotificationService friendEnteredGameNotificationService;
 
     public LauncherService() {
     }
@@ -38,6 +42,10 @@ public class LauncherService {
             throw  new DataIntegrityViolationException("User is already in game!");
 
         redisService.saveToRedis(user.getId().toString(),"plays",game.getTitle());
+
+        List<CustomUser> onlineFriends = userService.getOnlineFriends(userId);
+
+        friendEnteredGameNotificationService.notifyOnlineFriends(user,onlineFriends,game);
 
     }
 
