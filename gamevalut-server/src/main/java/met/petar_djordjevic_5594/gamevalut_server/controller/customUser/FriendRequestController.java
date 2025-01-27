@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -42,10 +41,10 @@ public class FriendRequestController {
         userService.acceptFriendRequest(userId, requestId);
     }
 
-    @DeleteMapping("{userId}/{requestSenderId}")
+    @DeleteMapping("/{requestId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteRequest(@PathVariable("userId") Integer userId, @PathVariable("requestSenderId") Integer requestSenderId) {
-        userService.deleteRequest(userId,requestSenderId);
+    public void deleteRequest(@PathVariable("requestId") Integer reqestId) {
+        userService.deleteRequest(reqestId);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

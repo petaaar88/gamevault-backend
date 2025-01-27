@@ -146,19 +146,19 @@ public class CustomUserService {
     public FriendRequestsDTO getAllFriendRequests(Integer userId) {
         CustomUser user = this.getUserById(userId);
 
-        List<FriendDTO> receivedRequest = new ArrayList<>();
-        List<FriendDTO> sentRequest = new ArrayList<>();
+        List<SingleFriendRequestDTO> receivedRequest = new ArrayList<>();
+        List<SingleFriendRequestDTO> sentRequest = new ArrayList<>();
 
         if (!user.getSentRequests().isEmpty()) {
             user.getSentRequests().forEach(request -> {
-                sentRequest.add(new FriendDTO(request.getUid2().getId(), request.getUid2().getUsername(), request.getUid2().getImageUrl(), null, null));
+                sentRequest.add(new SingleFriendRequestDTO(request.getId(),new FriendDTO(request.getUid2().getId(), request.getUid2().getUsername(), request.getUid2().getImageUrl(), null, null) ));
             });
         }
 
         if (!user.getReceivedRequests().isEmpty()) {
             user.getReceivedRequests().forEach(request -> {
                 if (request.getUid2().getId() == userId) {
-                    receivedRequest.add(new FriendDTO(request.getUid1().getId(), request.getUid1().getUsername(), request.getUid1().getImageUrl(), null, null));
+                    receivedRequest.add(new SingleFriendRequestDTO(request.getId(),new FriendDTO(request.getUid1().getId(), request.getUid1().getUsername(), request.getUid1().getImageUrl(), null, null)));
 
                 }
             });
@@ -178,6 +178,9 @@ public class CustomUserService {
             throw new NoSuchElementException("Friend request does not exists!");
 
         if (optionalFriendRequest.get().getUid1().getId() == userId)
+            throw new DataIntegrityViolationException("Invalid user Id!");
+
+        if (optionalFriendRequest.get().getUid2().getId() != userId)
             throw new DataIntegrityViolationException("Invalid user Id!");
 
         CustomUser potentialFriend = optionalFriendRequest.get().getUid1();
@@ -203,32 +206,14 @@ public class CustomUserService {
 
     }
 
-    public void deleteRequest(Integer userId, Integer requestSenderId) {
-        CustomUser user = this.getUserById(userId);
-        CustomUser requestSender = this.getUserById(requestSenderId);
+    public void deleteRequest(Integer requestId) {
 
-        if (user == requestSender)
-            throw new CannotAddFriendException("Same id input for user and friend!");
+        Optional<FriendRequest> optionalFriendRequest = friendRequestRepository.findById(requestId);
 
-        Integer[] requestId = new Integer[1];
+        if(optionalFriendRequest.isEmpty())
+            throw new NoSuchElementException("Request not found");
 
-        user.getReceivedRequests().forEach(request -> {
-            if (request.getUid1().getId() == requestSenderId && request.getUid2().getId() == userId)
-                requestId[0] = request.getId();
-        });
-
-
-        if (requestId[0] == null)
-            throw new NoSuchElementException("Friend Request does not exist!");
-        System.out.println(requestId[0]);
-
-        user.getReceivedRequests().removeIf(request -> request.getId() == requestId[0]);
-        requestSender.getSentRequests().removeIf(request -> request.getId() == requestId[0]);
-
-        userRepository.save(user);
-        userRepository.save(requestSender);
-
-        friendRequestRepository.deleteById(requestId[0]);
+        friendRequestRepository.deleteById(requestId);
 
     }
 
