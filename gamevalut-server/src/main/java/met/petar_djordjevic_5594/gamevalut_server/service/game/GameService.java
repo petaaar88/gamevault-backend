@@ -280,9 +280,9 @@ public class GameService {
         else if (newOverallPercentage >= 62.5)
             game.setOverallRating(GameRating.Positive);
         else if (newOverallPercentage >= 37.5)
-            game.setOverallRating(GameRating.Positive);
+            game.setOverallRating(GameRating.Mixed);
         else if (newOverallPercentage >= 12.5)
-            game.setOverallRating(GameRating.Positive);
+            game.setOverallRating(GameRating.Negative);
         else if (newOverallPercentage < 12.5)
             game.setOverallRating(GameRating.Mostly_Negative);
 
@@ -509,7 +509,7 @@ public class GameService {
     public void updateUserGamePlaytime(Integer gameId,Integer userId,UpdateUserGamePlaytimeDTO updateUserGamePlaytimeDTO){
         Game game = this.getGameById(gameId);
         CustomUser user = userService.getUserById(userId);
-        if(!this.doesUserHaveGame(gameId,userId))
+        if(!this.doesUserHaveGame(userId,gameId))
             throw new NoSuchElementException("User doesnt own game!");
 
         AcquiredGameCopy acquiredGameCopy = user.getAcquiredGameCopies().stream().filter(acquiredGameCopy1 -> acquiredGameCopy1.getGame().getId() == gameId).findFirst().get();
