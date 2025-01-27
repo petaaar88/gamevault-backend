@@ -7,6 +7,7 @@ import met.petar_djordjevic_5594.gamevalut_server.model.customUser.FriendComment
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.NewFriendCommentDTO;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.UpdatedCustomUserDTO;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.UserDescriptionDTO;
+import met.petar_djordjevic_5594.gamevalut_server.model.pagination.Pages;
 import met.petar_djordjevic_5594.gamevalut_server.service.customUser.CustomUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -46,8 +47,8 @@ public class CustomUserProfileController {
 
     @GetMapping("/comments/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public List<FriendCommentDTO> getComments(@PathVariable("userId") Integer userId) {
-        return userService.getFriendComments(userId);
+    public Pages getComments(@PathVariable("userId") Integer userId, @RequestParam(name = "page", defaultValue = "1") Integer page, @RequestParam(name = "limit", defaultValue = "3") Integer limit) {
+        return userService.getFriendCommentsAndPaginate(userId, page, limit);
     }
 
     @PatchMapping("/{userId}")

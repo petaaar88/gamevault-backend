@@ -279,6 +279,25 @@ public class CustomUserService {
 
     }
 
+    public Pages getFriendCommentsAndPaginate(Integer userId,Integer page,Integer limit){
+
+        Paginator.validatePageAndLimit(page,limit);
+
+        Integer offset = (page - 1) * limit;
+
+        CustomUser user = this.getUserById(userId);
+        List<CustomUser> friends = this.getAllFriends(userId);
+
+        List<FriendCommentDTO> friendsComments = new ArrayList<>();
+
+        friendCommentRepostiory.findCommentsAndPaginate(userId,limit,offset).get().forEach(comment -> {
+            CustomUser friend = this.getUserById(comment.getFriendship().getUser1().getId());
+            friendsComments.add(new FriendCommentDTO(comment.getId(), new FriendDTO(friend.getId(), friend.getUsername(), friend.getImageUrl(), null, null), comment.getContent(), comment.getPosted_at()));
+        });
+
+        return Paginator.getResoultAndPages(page, limit, friendCommentRepostiory.countFriendComments(userId), friendsComments);
+    }
+
     public List<CustomUser> getOnlineFriends(Integer userId) {
         CustomUser user = this.getUserById(userId);
 
