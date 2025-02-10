@@ -11,7 +11,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOriginPatterns("*") // replace with your frontend URL
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
-                .allowedHeaders("http://localhost:5500")
+                .allowedHeaders("*")
                 .allowCredentials(true); // Enable credentials
 
     }

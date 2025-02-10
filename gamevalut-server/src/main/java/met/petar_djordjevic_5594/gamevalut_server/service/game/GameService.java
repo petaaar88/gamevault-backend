@@ -310,8 +310,15 @@ public class GameService {
         Integer offset = (page - 1) * limit;
 
         gameRepository.findByFilterAndPaginate(limit, offset, title).get().forEach(game -> {
+            if(game.getOverallRatingPercentage() != null){
+            Double zaokruzen = Double.parseDouble(String.format("%.2f", game.getOverallRatingPercentage()));
+                game.setOverallRatingPercentage(zaokruzen);
+
+            }
             games.add(this.convertToOverviewDTO(game));
         });
+
+
 
         return Paginator.getResoultAndPages(page, limit, gameRepository.countFindByFilterAndPaginate(title), games);
     }

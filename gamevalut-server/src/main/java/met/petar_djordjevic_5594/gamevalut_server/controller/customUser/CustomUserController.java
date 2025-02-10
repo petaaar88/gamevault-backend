@@ -14,7 +14,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +37,34 @@ public class CustomUserController {
     UserOnlineNotificationService userOnlineNotificationService;
     @Autowired
     RedisService redisService;
+
+    // Definišite putanju direktorijuma gde će slike biti čuvane
+    private static final String UPLOAD_DIRECTORY = "C:/Users/pebn8/Desktop/slikeSaAplikacije";
+
+    @PostMapping("/upload")
+    public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file,
+                                              @RequestParam("username") String username) {
+        if (file.isEmpty() || username == null || username.isEmpty()) {
+            return new ResponseEntity<>("Invalid file or username", HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            // Kreirajte direktorijum ako ne postoji
+            File uploadDir = new File(UPLOAD_DIRECTORY);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+
+            // Sačuvajte datoteku u direktorijumu
+            Path filePath = Paths.get(UPLOAD_DIRECTORY, username + "_" + file.getOriginalFilename());
+            Files.write(filePath, file.getBytes());
+
+            return new ResponseEntity<>("File uploaded successfully", HttpStatus.OK);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("Failed to upload file", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @PostMapping("/login")
     private void login(@Valid @RequestBody LoginUserDTO loginUserDTO) {
