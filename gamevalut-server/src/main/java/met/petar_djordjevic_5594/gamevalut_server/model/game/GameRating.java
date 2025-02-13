@@ -1,7 +1,7 @@
 package met.petar_djordjevic_5594.gamevalut_server.model.game;
 
 public enum GameRating {
-    Mostly_Positive("Mostly Postive"),
+    Mostly_Positive("Mostly Positive"),
     Positive("Positive"),
     Mixed("Mixed"),
     Negative("Negative"),
