@@ -162,6 +162,12 @@ public class GameController {
         gameService.updateUserGamePlaytime(gameId, userId, updateUserGamePlaytimeDTO);
     }
 
+    @GetMapping("/{userId}/{gameId}/has-friends-that-own-game")
+    @ResponseStatus(HttpStatus.OK)
+    public boolean hasFriendsThatOwnGame(@PathVariable("userId") Integer userId, @PathVariable("gameId") Integer gameId) {
+        return gameService.hasFriendsThatOwnGame(gameId, userId);
+    }
+
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Map<String, String>> handelHttpMessageNotReadableException(HttpMessageNotReadableException ex) {

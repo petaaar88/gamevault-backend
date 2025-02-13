@@ -534,6 +534,16 @@ public class GameService {
         acquiredGameCopyRepository.save(acquiredGameCopy);
     }
 
+    public boolean hasFriendsThatOwnGame(Integer gameId,Integer userId){
+        CustomUser user = userService.getUserById(userId);
+        Game game = this.getGameById(gameId);
+
+       this.getFriendsThatOwnGame(gameId,userId);
+
+       return this.getFriendsThatOwnGame(gameId,userId).isEmpty()? false: true;
+
+    }
+
     public boolean doesUserHaveGame(Integer userId, Integer gameId) {
         Game game = this.getGameById(gameId);
         CustomUser user = userService.getUserById(userId);
