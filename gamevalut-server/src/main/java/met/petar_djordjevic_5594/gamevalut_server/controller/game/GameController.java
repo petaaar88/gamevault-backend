@@ -68,6 +68,12 @@ public class GameController {
         return gameService.getDownloadURL(gameId);
     }
 
+    @GetMapping("/{userId}/{gameId}/has-game")
+    @ResponseStatus(HttpStatus.OK)
+    public boolean hasGame(@PathVariable("userId") Integer userId, @PathVariable("gameId") Integer gameId) {
+        return gameService.doesUseHaveGame(userId, gameId);
+    }
+
     @GetMapping("/{gameId}/{userId}/friends")
     @ResponseStatus(HttpStatus.OK)
     public List<FriendDTO> getFriendThatOwnGame(@PathVariable("gameId") Integer gameId, @PathVariable("userId") Integer userId) {

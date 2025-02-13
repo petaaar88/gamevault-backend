@@ -363,6 +363,13 @@ public class GameService {
         return game.getDownloadUrl();
     }
 
+    public boolean doesUseHaveGame(Integer userId,Integer gameId){
+        CustomUser user = userService.getUserById(userId);
+        Game game = this.getGameById(gameId);
+
+        return gameRepository.findIfUserHaveGame(gameId, userId).isPresent();
+    }
+
     public List<FriendDTO> getFriendsThatOwnGame(Integer gameId, Integer userId) {
 
         Game game = this.getGameById(gameId);
