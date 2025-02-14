@@ -74,6 +74,12 @@ public class GameController {
         return gameService.doesUseHaveGame(userId, gameId);
     }
 
+    @GetMapping("/{gameId}/{userId}/has-review")
+    @ResponseStatus(HttpStatus.OK)
+    public boolean hasReview(@PathVariable("gameId") Integer gameId, @PathVariable("userId") Integer userId) {
+        return gameService.doesUserHaveReview(gameId, userId);
+    }
+
     @GetMapping("/{gameId}/{userId}/friends")
     @ResponseStatus(HttpStatus.OK)
     public List<FriendDTO> getFriendThatOwnGame(@PathVariable("gameId") Integer gameId, @PathVariable("userId") Integer userId) {

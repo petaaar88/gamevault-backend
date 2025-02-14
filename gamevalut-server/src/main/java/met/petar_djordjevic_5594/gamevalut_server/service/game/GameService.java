@@ -370,6 +370,13 @@ public class GameService {
         return gameRepository.findIfUserHaveGame(gameId, userId).isPresent();
     }
 
+    public boolean doesUserHaveReview(Integer gameId, Integer userId){
+        Game game = this.getGameById(gameId);
+        CustomUser user = userService.getUserById(userId);
+
+        return user.getAcquiredGameCopies().stream().filter(acquiredGameCopy -> acquiredGameCopy.getGame().getId() == gameId).findFirst().get().getGameReview() != null;
+    }
+
     public List<FriendDTO> getFriendsThatOwnGame(Integer gameId, Integer userId) {
 
         Game game = this.getGameById(gameId);
