@@ -92,9 +92,9 @@ public class CustomUserController {
         return userService.getAllUsersFriends(userId);
     }
 
-    @GetMapping("/search")
-    private Pages search(@RequestParam(name = "username", defaultValue = "") String username, @RequestParam(name = "page", defaultValue = "1") Integer page, @RequestParam(name = "limit", defaultValue = "3") Integer limit) {
-        return userService.searchUsers(username, page, limit);
+    @GetMapping("/search/{userId}")
+    private Pages search(@PathVariable("userId") Integer userId, @RequestParam(name = "username", defaultValue = "") String username, @RequestParam(name = "page", defaultValue = "1") Integer page, @RequestParam(name = "limit", defaultValue = "3") Integer limit) {
+        return userService.searchUsers(userId, username, page, limit);
     }
 
     @DeleteMapping("/logout/{userId}")

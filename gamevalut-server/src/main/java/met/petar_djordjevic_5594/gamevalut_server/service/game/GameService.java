@@ -138,11 +138,11 @@ public class GameService {
 
     }
 
-    public void publishGame(Integer gameId){
+    public void publishGame(Integer gameId) {
         Game game = this.getGameById(gameId);
 
 
-        if(game.getGenres().size() == 0)
+        if (game.getGenres().size() == 0)
             throw new DataIntegrityViolationException("No genres provided for this game");
 
         boolean haveIconImage = false;
@@ -150,31 +150,31 @@ public class GameService {
         boolean haveCatalogImage = false;
         boolean haveLibraryImage = false;
 
-        for(GameImage image : game.getImages()){
-            if(image.getType() == GameImageType.Catalog)
+        for (GameImage image : game.getImages()) {
+            if (image.getType() == GameImageType.Catalog)
                 haveCatalogImage = true;
-            if(image.getType() == GameImageType.Icon)
+            if (image.getType() == GameImageType.Icon)
                 haveIconImage = true;
-            if(image.getType() == GameImageType.Library)
+            if (image.getType() == GameImageType.Library)
                 haveLibraryImage = true;
-            if(image.getType() == GameImageType.Product_Page)
+            if (image.getType() == GameImageType.Product_Page)
                 haveProductPageImage = true;
         }
 
 
-        if(!haveCatalogImage)
+        if (!haveCatalogImage)
             throw new DataIntegrityViolationException("No catalog image provided!");
-        if(!haveIconImage)
+        if (!haveIconImage)
             throw new DataIntegrityViolationException("No icon image provided!");
-        if(!haveLibraryImage)
+        if (!haveLibraryImage)
             throw new DataIntegrityViolationException("No library image provided!");
-        if(!haveProductPageImage)
+        if (!haveProductPageImage)
             throw new DataIntegrityViolationException("No product page image provided!");
 
-        if(game.getSystemRequirements().stream().filter(requirements->requirements.getType() == GameSystemRequirementsType.Minimum).findFirst().isEmpty())
+        if (game.getSystemRequirements().stream().filter(requirements -> requirements.getType() == GameSystemRequirementsType.Minimum).findFirst().isEmpty())
             throw new DataIntegrityViolationException("No minimum system requirments provided!");
 
-        if(game.getSystemRequirements().stream().filter(requirements->requirements.getType() == GameSystemRequirementsType.Recommended).findFirst().isEmpty())
+        if (game.getSystemRequirements().stream().filter(requirements -> requirements.getType() == GameSystemRequirementsType.Recommended).findFirst().isEmpty())
             throw new DataIntegrityViolationException("No recommended system requirments provided!");
 
         game.setPublished(true);
@@ -262,13 +262,13 @@ public class GameService {
         GameRating overallRating = game.getOverallRating();
         Double overallPercentage = game.getOverallRatingPercentage();
 
-        if(overallPercentage == null)
+        if (overallPercentage == null)
             overallPercentage = 0.0;
 
         Double totalGameReviewPointsPercentage = overallPercentage * numberOfReviews.doubleValue();
 
         totalGameReviewPointsPercentage += gameRatingPointPercentage;
-        numberOfReviews =  numberOfReviews.add(BigInteger.ONE);
+        numberOfReviews = numberOfReviews.add(BigInteger.ONE);
 
         Double newOverallPercentage = totalGameReviewPointsPercentage / numberOfReviews.doubleValue();
 
@@ -310,14 +310,13 @@ public class GameService {
         Integer offset = (page - 1) * limit;
 
         gameRepository.findByFilterAndPaginate(limit, offset, title).get().forEach(game -> {
-            if(game.getOverallRatingPercentage() != null){
-            Double zaokruzen = Double.parseDouble(String.format("%.2f", game.getOverallRatingPercentage()));
+            if (game.getOverallRatingPercentage() != null) {
+                Double zaokruzen = Double.parseDouble(String.format("%.2f", game.getOverallRatingPercentage()));
                 game.setOverallRatingPercentage(zaokruzen);
 
             }
             games.add(this.convertToOverviewDTO(game));
         });
-
 
 
         return Paginator.getResoultAndPages(page, limit, gameRepository.countFindByFilterAndPaginate(title), games);
@@ -342,7 +341,7 @@ public class GameService {
 
         Game game = this.getGameById(gameId);
 
-        if(game.getPublished().booleanValue() == false)
+        if (game.getPublished().booleanValue() == false)
             throw new NoSuchElementException("Game not found!");
 
         List<String> genres = new ArrayList<>();
@@ -351,7 +350,7 @@ public class GameService {
             genres.add(genre.getName());
         });
 
-        return new GameDescriptionDTO(game.getTitle() ,game.getDescription(), genres, game.getDeveloper(), game.getReleaseDate().toString());
+        return new GameDescriptionDTO(game.getTitle(), game.getDescription(), genres, game.getDeveloper(), game.getReleaseDate().toString());
     }
 
     public String getDownloadURL(Integer gameId) {
@@ -363,18 +362,23 @@ public class GameService {
         return game.getDownloadUrl();
     }
 
-    public boolean doesUseHaveGame(Integer userId,Integer gameId){
+    public boolean doesUseHaveGame(Integer userId, Integer gameId) {
         CustomUser user = userService.getUserById(userId);
         Game game = this.getGameById(gameId);
 
         return gameRepository.findIfUserHaveGame(gameId, userId).isPresent();
     }
 
-    public boolean doesUserHaveReview(Integer gameId, Integer userId){
+    public boolean doesUserHaveReview(Integer gameId, Integer userId) {
         Game game = this.getGameById(gameId);
         CustomUser user = userService.getUserById(userId);
 
         return user.getAcquiredGameCopies().stream().filter(acquiredGameCopy -> acquiredGameCopy.getGame().getId() == gameId).findFirst().get().getGameReview() != null;
+    }
+
+    public boolean hasReviews(Integer gameId) {
+        Game game = this.getGameById(gameId);
+        return game.getNumberOfReviews().intValue() == 0 ? false : true;
     }
 
     public List<FriendDTO> getFriendsThatOwnGame(Integer gameId, Integer userId) {
@@ -455,7 +459,7 @@ public class GameService {
         return gameReviewDTOS;
     }
 
-    public Pages getAllReviewsForGame(Integer gameId, Integer page, Integer limit){
+    public Pages getAllReviewsForGame(Integer gameId, Integer page, Integer limit) {
         Paginator.validatePageAndLimit(page, limit);
 
         Game game = this.getGameById(gameId);
@@ -464,9 +468,9 @@ public class GameService {
 
         Integer offset = (page - 1) * limit;
 
-        List<GameReview> gameReviews = gameReviewRepository.findByGameIdAndPaginate(gameId,limit, offset).get();
+        List<GameReview> gameReviews = gameReviewRepository.findByGameIdAndPaginate(gameId, limit, offset).get();
 
-        if(gameReviews.isEmpty())
+        if (gameReviews.isEmpty())
             return Paginator.getResoultAndPages(page, limit, gameReviewRepository.countReviewsByGameId(gameId), null);
 
         List<GameReviewDTO> gameReviewDTOS = new ArrayList<>();
@@ -527,10 +531,10 @@ public class GameService {
         return gameInUserCollectionDetailsDTO;
     }
 
-    public void updateUserGamePlaytime(Integer gameId,Integer userId,UpdateUserGamePlaytimeDTO updateUserGamePlaytimeDTO){
+    public void updateUserGamePlaytime(Integer gameId, Integer userId, UpdateUserGamePlaytimeDTO updateUserGamePlaytimeDTO) {
         Game game = this.getGameById(gameId);
         CustomUser user = userService.getUserById(userId);
-        if(!this.doesUserHaveGame(userId,gameId))
+        if (!this.doesUserHaveGame(userId, gameId))
             throw new NoSuchElementException("User doesnt own game!");
 
         AcquiredGameCopy acquiredGameCopy = user.getAcquiredGameCopies().stream().filter(acquiredGameCopy1 -> acquiredGameCopy1.getGame().getId() == gameId).findFirst().get();
@@ -541,13 +545,13 @@ public class GameService {
         acquiredGameCopyRepository.save(acquiredGameCopy);
     }
 
-    public boolean hasFriendsThatOwnGame(Integer gameId,Integer userId){
+    public boolean hasFriendsThatOwnGame(Integer gameId, Integer userId) {
         CustomUser user = userService.getUserById(userId);
         Game game = this.getGameById(gameId);
 
-       this.getFriendsThatOwnGame(gameId,userId);
+        this.getFriendsThatOwnGame(gameId, userId);
 
-       return this.getFriendsThatOwnGame(gameId,userId).isEmpty()? false: true;
+        return this.getFriendsThatOwnGame(gameId, userId).isEmpty() ? false : true;
 
     }
 
@@ -583,7 +587,7 @@ public class GameService {
         rating.put("rating_percentage", (game.getOverallRatingPercentage() != null) ? game.getOverallRatingPercentage().toString() : null);
         rating.put("reviews", game.getNumberOfReviews().toString());
         GameImage gameImage = game.getImages().stream().filter(gameImage1 -> gameImage1.getType() == GameImageType.Catalog).findFirst().get();
-        return new GameOverviewDTO(game.getId(), game.getTitle(),gameImage.getUrl() ,game.getNumberOfAcquisitions(), game.getDeveloper(), rating);
+        return new GameOverviewDTO(game.getId(), game.getTitle(), gameImage.getUrl(), game.getNumberOfAcquisitions(), game.getDeveloper(), rating);
     }
 
 }

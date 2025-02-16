@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomUserService {
@@ -342,7 +343,10 @@ public class CustomUserService {
         redisService.deleteFromRedis(user.getId().toString());
     }
 
-    public Pages searchUsers(String username, Integer page, Integer limit) {
+    public Pages searchUsers(Integer userId, String username, Integer page, Integer limit) {
+
+        CustomUser customUser = this.getUserById(userId);
+        List<CustomUser> friends = this.getAllFriends(userId);
 
         Paginator.validatePageAndLimit(page, limit);
 
@@ -353,6 +357,14 @@ public class CustomUserService {
         userRepository.findByUsernameAndPaginate(username, offset, limit).get().forEach(user -> {
             users.add(new FriendDTO(user.getId(), user.getUsername(), user.getImageUrl(), null, null));
         });
+
+        Set<Integer> excludeIds = friends.stream()
+                .map(CustomUser::getId) // Mapiramo prijatelje u njihove ID-eve
+                .collect(Collectors.toSet());
+        excludeIds.add(customUser.getId());
+
+        users.removeIf(user2 -> excludeIds.contains(user2.id()));
+
 
 
         return Paginator.getResoultAndPages(page, limit, userRepository.countByUsername(username), users);
