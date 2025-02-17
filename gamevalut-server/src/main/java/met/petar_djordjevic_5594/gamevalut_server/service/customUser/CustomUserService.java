@@ -110,6 +110,21 @@ public class CustomUserService {
 
     }
 
+    public String getRelationshipOfUsers(Integer userId,Integer freindId){
+        CustomUser user = this.getUserById(userId);
+        CustomUser friend = this.getUserById(freindId);
+
+        if(user.getUserWithFriends().stream().filter(friendship -> friendship.getUser2().getId() == freindId).findFirst().isPresent())
+            return "Friends";
+        else if(user.getSentRequests().stream().filter(request -> request.getUid2().getId() == freindId).findFirst().isPresent())
+            return "Request Sent";
+        else if (user.getReceivedRequests().stream().filter(request -> request.getUid1().getId() == freindId).findFirst().isPresent())
+            return "Request Received";
+        else
+            return "Send Friend Request";
+
+    }
+
     public void sendFriendRequest(Integer userId, Integer potentialFrinedId) {
 
         CustomUser user = this.getUserById(userId);
