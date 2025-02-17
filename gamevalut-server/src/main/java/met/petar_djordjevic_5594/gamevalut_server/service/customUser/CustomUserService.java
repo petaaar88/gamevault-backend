@@ -226,7 +226,7 @@ public class CustomUserService {
     public UserDescriptionDTO getUserProfileDescription(Integer userId) {
         CustomUser user = this.getUserById(userId);
 
-        return new UserDescriptionDTO(user.getId(), user.getUsername(), user.getImageUrl(), user.getDescription());
+        return new UserDescriptionDTO(user.getId(), user.getUsername(), user.getImageUrl(), user.getDescription(),user.getCreatedAt().toString());
 
     }
 
