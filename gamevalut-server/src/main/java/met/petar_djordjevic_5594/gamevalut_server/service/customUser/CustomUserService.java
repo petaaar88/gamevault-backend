@@ -2,6 +2,10 @@ package met.petar_djordjevic_5594.gamevalut_server.service.customUser;
 
 import met.petar_djordjevic_5594.gamevalut_server.exception.CannotAddFriendException;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.*;
+import met.petar_djordjevic_5594.gamevalut_server.model.game.AcquiredGameCopy;
+import met.petar_djordjevic_5594.gamevalut_server.model.game.GameImage;
+import met.petar_djordjevic_5594.gamevalut_server.model.game.GameImageType;
+import met.petar_djordjevic_5594.gamevalut_server.model.game.RecentPlayedGameDTO;
 import met.petar_djordjevic_5594.gamevalut_server.model.pagination.Pages;
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.ICustomUserRepository;
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IFriendCommentRepostiory;
@@ -16,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -110,13 +115,13 @@ public class CustomUserService {
 
     }
 
-    public String getRelationshipOfUsers(Integer userId,Integer freindId){
+    public String getRelationshipOfUsers(Integer userId, Integer freindId) {
         CustomUser user = this.getUserById(userId);
         CustomUser friend = this.getUserById(freindId);
 
-        if(user.getUserWithFriends().stream().filter(friendship -> friendship.getUser2().getId() == freindId).findFirst().isPresent())
+        if (user.getUserWithFriends().stream().filter(friendship -> friendship.getUser2().getId() == freindId).findFirst().isPresent())
             return "Friends";
-        else if(user.getSentRequests().stream().filter(request -> request.getUid2().getId() == freindId).findFirst().isPresent())
+        else if (user.getSentRequests().stream().filter(request -> request.getUid2().getId() == freindId).findFirst().isPresent())
             return "Request Sent";
         else if (user.getReceivedRequests().stream().filter(request -> request.getUid1().getId() == freindId).findFirst().isPresent())
             return "Request Received";
@@ -241,7 +246,7 @@ public class CustomUserService {
     public UserDescriptionDTO getUserProfileDescription(Integer userId) {
         CustomUser user = this.getUserById(userId);
 
-        return new UserDescriptionDTO(user.getId(), user.getUsername(), user.getImageUrl(), user.getDescription(),user.getCreatedAt().toString());
+        return new UserDescriptionDTO(user.getId(), user.getUsername(), user.getImageUrl(), user.getDescription(), user.getCreatedAt().toString());
 
     }
 
@@ -295,9 +300,9 @@ public class CustomUserService {
 
     }
 
-    public Pages getFriendCommentsAndPaginate(Integer userId,Integer page,Integer limit){
+    public Pages getFriendCommentsAndPaginate(Integer userId, Integer page, Integer limit) {
 
-        Paginator.validatePageAndLimit(page,limit);
+        Paginator.validatePageAndLimit(page, limit);
 
         Integer offset = (page - 1) * limit;
 
@@ -306,12 +311,54 @@ public class CustomUserService {
 
         List<FriendCommentDTO> friendsComments = new ArrayList<>();
 
-        friendCommentRepostiory.findCommentsAndPaginate(userId,limit,offset).get().forEach(comment -> {
+        friendCommentRepostiory.findCommentsAndPaginate(userId, limit, offset).get().forEach(comment -> {
             CustomUser friend = this.getUserById(comment.getFriendship().getUser1().getId());
             friendsComments.add(new FriendCommentDTO(comment.getId(), new FriendDTO(friend.getId(), friend.getUsername(), friend.getImageUrl(), null, null), comment.getContent(), comment.getPosted_at()));
         });
 
         return Paginator.getResoultAndPages(page, limit, friendCommentRepostiory.countFriendComments(userId), friendsComments);
+    }
+
+    public Pages getRecentPlayedGames(Integer userId, Integer page, Integer limit) {
+
+
+        CustomUser customUser = this.getUserById(userId);
+
+        long offset;
+
+        if(limit != -1){
+            offset = (long) (page - 1) * limit;
+
+        }
+        else{
+            limit = customUser.getAcquiredGameCopies().size();
+            offset = 0;
+        }
+
+
+
+        List<RecentPlayedGameDTO> recentPlayedGameDTOS = customUser
+                .getAcquiredGameCopies()
+                .stream()
+                .sorted(Comparator.comparing(AcquiredGameCopy::getLastPlayedAt, Comparator.nullsFirst(Comparator.naturalOrder())).reversed())
+                .skip(offset)
+                .limit(limit)
+                .map(acquiredGameCopy -> {
+                    String gameImage = acquiredGameCopy.getGame().getImages()
+                            .stream()
+                            .filter(gameImage1 -> gameImage1.getType() == GameImageType.Catalog)
+                            .map(GameImage::getUrl)
+                            .findAny()
+                            .get();
+                    LocalDateTime lastPlayedAt = acquiredGameCopy.getLastPlayedAt();
+                    String lastPlayedAtString = Objects.isNull(lastPlayedAt) ? null : lastPlayedAt.toString();
+
+
+                    return new RecentPlayedGameDTO(gameImage, acquiredGameCopy.getGame().getTitle(), acquiredGameCopy.getTimePlayed().toString(), lastPlayedAtString);
+                }).toList();
+
+
+        return Paginator.getResoultAndPages(page, limit, (long) customUser.getAcquiredGameCopies().size(), recentPlayedGameDTOS);
     }
 
     public List<CustomUser> getOnlineFriends(Integer userId) {
@@ -379,7 +426,6 @@ public class CustomUserService {
         excludeIds.add(customUser.getId());
 
         users.removeIf(user2 -> excludeIds.contains(user2.id()));
-
 
 
         return Paginator.getResoultAndPages(page, limit, userRepository.countByUsername(username), users);

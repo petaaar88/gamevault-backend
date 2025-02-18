@@ -51,9 +51,15 @@ public class CustomUserProfileController {
         return userService.getFriendCommentsAndPaginate(userId, page, limit);
     }
 
+    @GetMapping("/games/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public Pages getRecentPlayedGames(@PathVariable("userId") Integer userId, @RequestParam(name = "page", defaultValue = "1") Integer page, @RequestParam(name = "limit", defaultValue = "-1") Integer limit) {
+        return userService.getRecentPlayedGames(userId, page, limit);
+    }
+
     @PatchMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateUser(@PathVariable("userId") Integer userId, @RequestBody UpdatedCustomUserDTO updatedCustomUserDTO){
+    public void updateUser(@PathVariable("userId") Integer userId, @RequestBody UpdatedCustomUserDTO updatedCustomUserDTO) {
         userService.updateUser(userId, updatedCustomUserDTO);
     }
 
