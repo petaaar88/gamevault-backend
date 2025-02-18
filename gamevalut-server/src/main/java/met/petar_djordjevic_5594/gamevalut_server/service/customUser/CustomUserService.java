@@ -351,14 +351,17 @@ public class CustomUserService {
                             .findAny()
                             .get();
                     LocalDateTime lastPlayedAt = acquiredGameCopy.getLastPlayedAt();
+                    Double timePlayed = (double) acquiredGameCopy.getTimePlayed().intValue() / 3600000;
+
                     String lastPlayedAtString = Objects.isNull(lastPlayedAt) ? null : lastPlayedAt.toString();
 
 
-                    return new RecentPlayedGameDTO(gameImage, acquiredGameCopy.getGame().getTitle(), acquiredGameCopy.getTimePlayed().toString(), lastPlayedAtString);
-                }).toList();
+                    return new RecentPlayedGameDTO(acquiredGameCopy.getGame().getId(),gameImage, acquiredGameCopy.getGame().getTitle(), timePlayed.toString(), lastPlayedAtString);
+                })
+                .toList();
 
 
-        return Paginator.getResoultAndPages(page, limit, (long) customUser.getAcquiredGameCopies().size(), recentPlayedGameDTOS);
+        return Paginator.getResoultAndPages(page, limit== 0?1:limit , (long) customUser.getAcquiredGameCopies().size(), recentPlayedGameDTOS);
     }
 
     public List<CustomUser> getOnlineFriends(Integer userId) {

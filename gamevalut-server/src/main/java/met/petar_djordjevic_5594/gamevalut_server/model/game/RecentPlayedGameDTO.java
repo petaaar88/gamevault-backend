@@ -4,12 +4,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RecentPlayedGameDTO {
+    private Integer id;
     private String image;
     private String title;
     private String playtime;
     private String lastPlayedAt;
 
-    public RecentPlayedGameDTO(String image, String title, String playtime, String lastPlayedAt) {
+    public RecentPlayedGameDTO(Integer id,String image, String title, String playtime, String lastPlayedAt) {
+        this.id = id;
         this.image = image;
         this.title = title;
         this.playtime = playtime;
@@ -48,4 +50,11 @@ public class RecentPlayedGameDTO {
         this.lastPlayedAt = lastPlayedAt;
     }
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 }
