@@ -130,6 +130,12 @@ public class CustomUserService {
 
     }
 
+    public boolean doesHaveFriends(Integer userId){
+        CustomUser user = this.getUserById(userId);
+
+        return !user.getUserWithFriends().isEmpty();
+    }
+
     public void sendFriendRequest(Integer userId, Integer potentialFrinedId) {
 
         CustomUser user = this.getUserById(userId);
