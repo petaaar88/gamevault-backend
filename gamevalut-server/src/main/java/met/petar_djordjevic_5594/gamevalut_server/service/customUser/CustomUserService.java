@@ -136,6 +136,12 @@ public class CustomUserService {
         return !user.getUserWithFriends().isEmpty();
     }
 
+    public boolean doesHaveComments(Integer userId){
+        CustomUser user = this.getUserById(userId);
+
+       return user.getFriendsWithUser().stream().map(Friendship::getComment).anyMatch(Objects::nonNull);
+    }
+
     public void sendFriendRequest(Integer userId, Integer potentialFrinedId) {
 
         CustomUser user = this.getUserById(userId);
