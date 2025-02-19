@@ -24,6 +24,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @RestController
 public class CustomUserController {
@@ -107,6 +108,11 @@ public class CustomUserController {
         return userService.doesHaveComments(userId);
     }
 
+    @GetMapping("/does-user-post-comment/{userId}/{friendId}")
+    private boolean doesUserPostComment(@PathVariable("userId") Integer userId, @PathVariable("friendId") Integer friendId) {
+        return userService.doesUserPostComment(userId, friendId);
+    }
+
     @GetMapping("/search/{userId}")
     private Pages search(@PathVariable("userId") Integer userId, @RequestParam(name = "username", defaultValue = "") String username, @RequestParam(name = "page", defaultValue = "1") Integer page, @RequestParam(name = "limit", defaultValue = "3") Integer limit) {
         return userService.searchUsers(userId, username, page, limit);
@@ -127,6 +133,14 @@ public class CustomUserController {
             errors.put(fieldName, errorMessage);
         });
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<Object> handleNoSuchElementException(NoSuchElementException ex) {
+        Map<String, Object> body = new HashMap<>();
+
+        body.put("message", ex.getMessage());
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
 

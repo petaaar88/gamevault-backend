@@ -130,16 +130,34 @@ public class CustomUserService {
 
     }
 
-    public boolean doesHaveFriends(Integer userId){
+    public boolean doesHaveFriends(Integer userId) {
         CustomUser user = this.getUserById(userId);
 
         return !user.getUserWithFriends().isEmpty();
     }
 
-    public boolean doesHaveComments(Integer userId){
+    public boolean doesHaveComments(Integer userId) {
         CustomUser user = this.getUserById(userId);
 
-       return user.getFriendsWithUser().stream().map(Friendship::getComment).anyMatch(Objects::nonNull);
+        return user.getFriendsWithUser().stream().map(Friendship::getComment).anyMatch(Objects::nonNull);
+    }
+
+    public boolean doesUserPostComment(Integer userId, Integer friendId) {
+        CustomUser user = this.getUserById(userId);
+        CustomUser friend = this.getUserById(friendId);
+
+        if (this.getAllFriends(userId).isEmpty())
+            throw new NoSuchElementException("No friends!");
+
+        if (this.getAllFriends(friendId).isEmpty())
+            throw new NoSuchElementException("No friends!");
+
+        if(user.getUserWithFriends().stream().filter(friendship -> friendship.getUser2().getId() == friendId).findAny().isEmpty())
+            throw new NoSuchElementException("Not friends!");
+
+
+
+        return Objects.nonNull(user.getUserWithFriends().stream().filter(friendship -> friendship.getUser2().getId() == friendId).findFirst().get().getComment());
     }
 
     public void sendFriendRequest(Integer userId, Integer potentialFrinedId) {
@@ -338,15 +356,13 @@ public class CustomUserService {
 
         long offset;
 
-        if(limit != -1){
+        if (limit != -1) {
             offset = (long) (page - 1) * limit;
 
-        }
-        else{
+        } else {
             limit = customUser.getAcquiredGameCopies().size();
             offset = 0;
         }
-
 
 
         List<RecentPlayedGameDTO> recentPlayedGameDTOS = customUser
@@ -368,12 +384,12 @@ public class CustomUserService {
                     String lastPlayedAtString = Objects.isNull(lastPlayedAt) ? null : lastPlayedAt.toString();
 
 
-                    return new RecentPlayedGameDTO(acquiredGameCopy.getGame().getId(),gameImage, acquiredGameCopy.getGame().getTitle(), timePlayed.toString(), lastPlayedAtString);
+                    return new RecentPlayedGameDTO(acquiredGameCopy.getGame().getId(), gameImage, acquiredGameCopy.getGame().getTitle(), timePlayed.toString(), lastPlayedAtString);
                 })
                 .toList();
 
 
-        return Paginator.getResoultAndPages(page, limit== 0?1:limit , (long) customUser.getAcquiredGameCopies().size(), recentPlayedGameDTOS);
+        return Paginator.getResoultAndPages(page, limit == 0 ? 1 : limit, (long) customUser.getAcquiredGameCopies().size(), recentPlayedGameDTOS);
     }
 
     public List<CustomUser> getOnlineFriends(Integer userId) {
