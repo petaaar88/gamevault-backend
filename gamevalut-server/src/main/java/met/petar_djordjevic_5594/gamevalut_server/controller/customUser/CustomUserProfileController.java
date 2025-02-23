@@ -59,7 +59,7 @@ public class CustomUserProfileController {
 
     @PatchMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateUser(@PathVariable("userId") Integer userId, @RequestBody UpdatedCustomUserDTO updatedCustomUserDTO) {
+    public void updateUser(@PathVariable("userId") Integer userId,@Valid @ModelAttribute UpdatedCustomUserDTO updatedCustomUserDTO) {
         userService.updateUser(userId, updatedCustomUserDTO);
     }
 

@@ -19,6 +19,10 @@ public interface ICustomUserRepository extends JpaRepository<CustomUser, Integer
     @Query(value = "SELECT * FROM user WHERE username LIKE %:username% ", nativeQuery = true)
     Optional<List<CustomUser>> findByUsername(@Param("username")String username);
 
+    @Query(value = "SELECT * FROM user WHERE username LIKE :username ", nativeQuery = true)
+    Optional<CustomUser> findUserByUsername(@Param("username")String username);
+
+
     @Query(value = "SELECT * FROM user WHERE username LIKE CONCAT('%', :username, '%') LIMIT :limit OFFSET :offset ", nativeQuery = true)
     Optional<List<CustomUser>> findByUsernameAndPaginate(@Param("username")String username,@Param("offset")Integer offset,@Param("limit")Integer limit);
 

@@ -152,9 +152,8 @@ public class CustomUserService {
         if (this.getAllFriends(friendId).isEmpty())
             throw new NoSuchElementException("No friends!");
 
-        if(user.getUserWithFriends().stream().filter(friendship -> friendship.getUser2().getId() == friendId).findAny().isEmpty())
+        if (user.getUserWithFriends().stream().filter(friendship -> friendship.getUser2().getId() == friendId).findAny().isEmpty())
             throw new NoSuchElementException("Not friends!");
-
 
 
         return Objects.nonNull(user.getUserWithFriends().stream().filter(friendship -> friendship.getUser2().getId() == friendId).findFirst().get().getComment());
@@ -407,20 +406,28 @@ public class CustomUserService {
         return onlineFriends;
     }
 
-    public void updateUser(Integer userId, UpdatedCustomUserDTO updatedCustomUserDTO) {
+    public void updateUser(Integer userId, UpdatedCustomUserDTO updatedCustomUserDTO) throws DataIntegrityViolationException {
         CustomUser user = this.getUserById(userId);
 
-        if (updatedCustomUserDTO.description() == null && updatedCustomUserDTO.icon() == null && updatedCustomUserDTO.username() == null)
+        if (Objects.isNull(updatedCustomUserDTO.getDescription()) && Objects.isNull(updatedCustomUserDTO.getProfileImage()) && Objects.isNull(updatedCustomUserDTO.getUsername()))
             return;
 
-        if (updatedCustomUserDTO.username() != null)
-            user.setUsername(updatedCustomUserDTO.username());
+        if (!Objects.isNull(updatedCustomUserDTO.getUsername()) && !updatedCustomUserDTO.getUsername().isBlank() && !updatedCustomUserDTO.getUsername().equals(user.getUsername())) {
 
-        if (updatedCustomUserDTO.icon() != null)
-            user.setImageUrl(updatedCustomUserDTO.icon());
+            if (!updatedCustomUserDTO.getUsername().equalsIgnoreCase(user.getUsername())) {
+                if (userRepository.findUserByUsername(updatedCustomUserDTO.getUsername()).isPresent())
+                    throw new DataIntegrityViolationException("Username is already taken!");
 
-        if (updatedCustomUserDTO.description() != null)
-            user.setDescription(updatedCustomUserDTO.description());
+            }
+
+            user.setUsername(updatedCustomUserDTO.getUsername());
+        }
+
+        //if (Objects.isNull(updatedCustomUserDTO.getProfileImage()))
+        //    user.setImageUrl(updatedCustomUserDTO.icon());
+
+        if (!Objects.isNull(updatedCustomUserDTO.getDescription()) && !updatedCustomUserDTO.getDescription().isBlank())
+            user.setDescription(updatedCustomUserDTO.getDescription());
 
         userRepository.save(user);
 
