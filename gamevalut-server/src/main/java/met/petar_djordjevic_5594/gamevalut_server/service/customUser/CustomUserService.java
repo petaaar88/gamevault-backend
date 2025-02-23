@@ -1,6 +1,8 @@
 package met.petar_djordjevic_5594.gamevalut_server.service.customUser;
 
+import com.amazonaws.AmazonServiceException;
 import met.petar_djordjevic_5594.gamevalut_server.exception.CannotAddFriendException;
+import met.petar_djordjevic_5594.gamevalut_server.exception.ServerErrorException;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.*;
 import met.petar_djordjevic_5594.gamevalut_server.model.game.AcquiredGameCopy;
 import met.petar_djordjevic_5594.gamevalut_server.model.game.GameImage;
@@ -11,14 +13,18 @@ import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.ICustomU
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IFriendCommentRepostiory;
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IFriendRequestRepository;
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IFriendshipRepository;
+import met.petar_djordjevic_5594.gamevalut_server.service.aws.AWSBucketService;
 import met.petar_djordjevic_5594.gamevalut_server.service.notification.FriendRequestNotificationService;
 import met.petar_djordjevic_5594.gamevalut_server.service.redis.RedisService;
 import met.petar_djordjevic_5594.gamevalut_server.utils.Paginator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -38,6 +44,13 @@ public class CustomUserService {
     RedisService redisService;
     @Autowired
     FriendRequestNotificationService friendRequestNotificationService;
+    @Autowired
+    AWSBucketService awsBucketService;
+
+    private final String USER_PROFILE_IMAGE_NAME_TEMPLATE = "_user_profile_icon";
+
+    @Value("${aws.buckets.profileimage.name}")
+    private String userProfileImagesBucketName;
 
 
     public CustomUserService() {
@@ -423,8 +436,29 @@ public class CustomUserService {
             user.setUsername(updatedCustomUserDTO.getUsername());
         }
 
-        //if (Objects.isNull(updatedCustomUserDTO.getProfileImage()))
-        //    user.setImageUrl(updatedCustomUserDTO.icon());
+        if (!Objects.isNull(updatedCustomUserDTO.getProfileImage())) {
+            try {
+
+
+                File tempFile = File.createTempFile("upload_", updatedCustomUserDTO.getProfileImage().getOriginalFilename());
+                updatedCustomUserDTO.getProfileImage().transferTo(tempFile);
+
+                String filename = updatedCustomUserDTO.getProfileImage().getOriginalFilename();
+                String extention = "." + filename.substring(filename.lastIndexOf(".") + 1);
+
+                String imageName = user.getId().toString() + USER_PROFILE_IMAGE_NAME_TEMPLATE + extention;
+                awsBucketService.postObjectIntoBucket(userProfileImagesBucketName, imageName, tempFile);
+                tempFile.delete();
+
+                String newProfileImageAddress = "https://" + userProfileImagesBucketName + ".s3.amazonaws.com/" + imageName;
+                user.setImageUrl(newProfileImageAddress);
+
+            } catch (AmazonServiceException e) {
+                throw new ServerErrorException("Server Error");
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+        }
 
         if (!Objects.isNull(updatedCustomUserDTO.getDescription()) && !updatedCustomUserDTO.getDescription().isBlank())
             user.setDescription(updatedCustomUserDTO.getDescription());

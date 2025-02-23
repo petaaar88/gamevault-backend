@@ -3,6 +3,7 @@ package met.petar_djordjevic_5594.gamevalut_server.controller.customUser;
 import jakarta.validation.Valid;
 import met.petar_djordjevic_5594.gamevalut_server.exception.CannotAddFriendException;
 import met.petar_djordjevic_5594.gamevalut_server.exception.ResourceNotFoundException;
+import met.petar_djordjevic_5594.gamevalut_server.exception.ServerErrorException;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.FriendCommentDTO;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.NewFriendCommentDTO;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.UpdatedCustomUserDTO;
@@ -61,6 +62,15 @@ public class CustomUserProfileController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateUser(@PathVariable("userId") Integer userId,@Valid @ModelAttribute UpdatedCustomUserDTO updatedCustomUserDTO) {
         userService.updateUser(userId, updatedCustomUserDTO);
+    }
+
+    @ExceptionHandler(ServerErrorException.class)
+    public ResponseEntity<Object> handleServerErrorException(ServerErrorException ex) {
+
+        Map<String, Object> body = new HashMap<>();
+
+        body.put("message", ex.getMessage());
+        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
