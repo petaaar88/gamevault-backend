@@ -27,30 +27,14 @@ import java.util.NoSuchElementException;
 @RestController
 public class CustomUserController {
 
-
     @Autowired
     ICustomUserRepository userRepository;
     @Autowired
     CustomUserService userService;
-    @Autowired
-    UserOnlineNotificationService userOnlineNotificationService;
-    @Autowired
-    RedisService redisService;
 
     @PostMapping("/login")
     private void login(@Valid @RequestBody LoginUserDTO loginUserDTO) {
-
-        List<CustomUser> users = userRepository.findByUsername(loginUserDTO.username()).get();
-
-        CustomUser user = users.get(0);
-        System.out.println("Prijavlej je korisnik sa ID:" + user.getId() + ", username: " + user.getUsername());
-
-        //TODO: prepravi logiku i izbrisi ovo
-        redisService.saveToRedis(user.getId().toString(), "username", user.getUsername());
-
-        List<CustomUser> onlineFriends = userService.getOnlineFriends(user.getId());
-
-        userOnlineNotificationService.notifyOnlineFriends(user, onlineFriends);
+        userService.loginUser(loginUserDTO);
     }
 
     @PostMapping("/register")

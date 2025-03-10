@@ -15,6 +15,7 @@ import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IFriendR
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IFriendshipRepository;
 import met.petar_djordjevic_5594.gamevalut_server.service.aws.AWSBucketService;
 import met.petar_djordjevic_5594.gamevalut_server.service.notification.FriendRequestNotificationService;
+import met.petar_djordjevic_5594.gamevalut_server.service.notification.UserOnlineNotificationService;
 import met.petar_djordjevic_5594.gamevalut_server.service.redis.RedisService;
 import met.petar_djordjevic_5594.gamevalut_server.utils.Paginator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,8 @@ public class CustomUserService {
     @Autowired
     FriendRequestNotificationService friendRequestNotificationService;
     @Autowired
+    UserOnlineNotificationService userOnlineNotificationService;
+    @Autowired
     AWSBucketService awsBucketService;
 
     private final String USER_PROFILE_IMAGE_NAME_TEMPLATE = "_user_profile_icon";
@@ -68,6 +71,21 @@ public class CustomUserService {
 
         userRepository.save(newUser);
 
+
+    }
+
+    public void loginUser(LoginUserDTO loginUserDTO) {
+
+        CustomUser user = userRepository.findByCredentials(loginUserDTO.username(), loginUserDTO.password()).orElseThrow(() -> new NoSuchElementException("Wrong username or password!"));
+
+        System.out.println("Prijavlej je korisnik sa ID:" + user.getId() + ", username: " + user.getUsername());
+
+        //TODO: prepravi logiku i izbrisi ovo
+        redisService.saveToRedis(user.getId().toString(), "username", user.getUsername());
+
+        List<CustomUser> onlineFriends = this.getOnlineFriends(user.getId());
+
+        userOnlineNotificationService.notifyOnlineFriends(user, onlineFriends);
 
     }
 
