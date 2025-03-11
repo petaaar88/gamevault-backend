@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import org.springframework.web.multipart.MultipartFile;
 
 
 public record NewCustomUserDTO(
@@ -15,14 +16,14 @@ public record NewCustomUserDTO(
         String username,
         @Size(
                 min = 5,
-                max = 20,
                 message = "Password has to have minimum of 5 characters!"
+        )
+        @Size(
+                max = 20,
+                message = "Password has to have maximum of 20 characters!"
         )
         @NotBlank(message = "You did not choose password!")
         String password,
-        @NotBlank(message = "You did not choose country!")
-        String countryId,
-        String countryCode,
-        String imageUrl
+        MultipartFile profileImage
 ) {
 }

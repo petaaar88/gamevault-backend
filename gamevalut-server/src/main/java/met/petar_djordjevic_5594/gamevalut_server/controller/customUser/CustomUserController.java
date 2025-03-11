@@ -8,6 +8,7 @@ import met.petar_djordjevic_5594.gamevalut_server.service.customUser.CustomUserS
 import met.petar_djordjevic_5594.gamevalut_server.service.notification.UserOnlineNotificationService;
 import met.petar_djordjevic_5594.gamevalut_server.service.redis.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -33,13 +34,13 @@ public class CustomUserController {
     CustomUserService userService;
 
     @PostMapping("/login")
-    private void login(@Valid @RequestBody LoginUserDTO loginUserDTO) {
-        userService.loginUser(loginUserDTO);
+    private FriendDTO login(@Valid @RequestBody LoginUserDTO loginUserDTO) {
+        return userService.loginUser(loginUserDTO);
     }
 
     @PostMapping("/register")
-    private void register(@Valid @RequestBody NewCustomUserDTO newCustomUserDTO) {
-
+    private FriendDTO register(@Valid @ModelAttribute NewCustomUserDTO newCustomUserDTO) {
+        return  userService.createUser(newCustomUserDTO);
     }
 
     @GetMapping("/friends/{userId}")
@@ -97,5 +98,13 @@ public class CustomUserController {
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Object> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
+
+        Map<String, Object> body = new HashMap<>(); // Create a map to store the error message
+
+        body.put("message", ex.getMessage());
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+    }
 
 }

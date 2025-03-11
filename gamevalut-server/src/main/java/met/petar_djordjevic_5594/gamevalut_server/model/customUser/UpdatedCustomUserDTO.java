@@ -1,7 +1,5 @@
 package met.petar_djordjevic_5594.gamevalut_server.model.customUser;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import org.springframework.web.multipart.MultipartFile;

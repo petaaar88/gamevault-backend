@@ -59,22 +59,7 @@ public class CustomUserService {
     public CustomUserService() {
     }
 
-    public void addUser(CustomUser newUser) {
-        userRepository.save(newUser);
-    }
-
-    public void addUser(NewCustomUserDTO newCustomUserDTO) {
-
-        CustomUser newUser = convertToEntity(newCustomUserDTO);
-
-        newUser.setCreatedAt(LocalDate.now());
-
-        userRepository.save(newUser);
-
-
-    }
-
-    public void loginUser(LoginUserDTO loginUserDTO) {
+    public FriendDTO loginUser(LoginUserDTO loginUserDTO) {
 
         CustomUser user = userRepository.findByCredentials(loginUserDTO.username(), loginUserDTO.password()).orElseThrow(() -> new NoSuchElementException("Wrong username or password!"));
 
@@ -86,7 +71,57 @@ public class CustomUserService {
         List<CustomUser> onlineFriends = this.getOnlineFriends(user.getId());
 
         userOnlineNotificationService.notifyOnlineFriends(user, onlineFriends);
+        return new FriendDTO(user.getId(), user.getUsername(), user.getImageUrl(), null, null);
+    }
 
+    public FriendDTO createUser(NewCustomUserDTO newCustomUserDTO){
+
+        userRepository.findUserByUniqueUsername(newCustomUserDTO.username()).ifPresent(user -> {
+            throw new DataIntegrityViolationException("Username already exists!");
+        });
+
+        CustomUser user = new CustomUser(newCustomUserDTO.username(), newCustomUserDTO.password());
+        user.setCreatedAt(LocalDate.now());
+        user.setRole(CustomUserRole.Common);
+        userRepository.save(user);
+
+        CustomUser newUser = userRepository.findUserByUniqueUsername(newCustomUserDTO.username()).get();
+
+        if (!Objects.isNull(newCustomUserDTO.profileImage())) {
+            if(!newCustomUserDTO.profileImage().getOriginalFilename().isBlank()) {
+
+                try {
+
+                    File tempFile = File.createTempFile("upload_", newCustomUserDTO.profileImage().getOriginalFilename());
+                    newCustomUserDTO.profileImage().transferTo(tempFile);
+
+                    String filename = newCustomUserDTO.profileImage().getOriginalFilename();
+                    String extention = "." + filename.substring(filename.lastIndexOf(".") + 1);
+
+                    String imageName = newUser.getId().toString() + USER_PROFILE_IMAGE_NAME_TEMPLATE + extention;
+                    awsBucketService.postObjectIntoBucket(userProfileImagesBucketName, imageName, tempFile);
+                    tempFile.delete();
+
+                    String newProfileImageAddress = "https://" + userProfileImagesBucketName + ".s3.amazonaws.com/" + imageName;
+                    newUser.setImageUrl(newProfileImageAddress);
+
+                } catch (AmazonServiceException e) {
+                    throw new ServerErrorException("Server Error");
+                } catch (IOException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+            else{
+                newUser.setImageUrl("https://" + userProfileImagesBucketName + ".s3.amazonaws.com/default_user_profile_icon.jpg");
+            }
+        }
+        else{
+            newUser.setImageUrl("https://" + userProfileImagesBucketName + ".s3.amazonaws.com/default_user_profile_icon.jpg");
+        }
+
+        userRepository.save(newUser);
+
+        return new FriendDTO(newUser.getId(), newUser.getUsername(), newUser.getImageUrl(), null, null);
     }
 
     public CustomUser getUserById(Integer userId) {
