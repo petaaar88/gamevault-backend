@@ -61,6 +61,7 @@ public class GameService {
         newGame.setNumberOfAcquisitions(BigInteger.ZERO);
         newGame.setNumberOfReviews(BigInteger.ZERO);
         newGame.setDeploymentDate(LocalDate.now());
+        newGame.setPublished(false);
 
         gameRepository.save(newGame);
     }
