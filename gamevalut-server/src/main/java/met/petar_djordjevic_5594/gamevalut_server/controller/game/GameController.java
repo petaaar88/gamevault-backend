@@ -41,6 +41,12 @@ public class GameController {
         return gameService.getAll(page, limit, title);
     }
 
+    @GetMapping("/{id}/images")
+    @ResponseStatus(HttpStatus.OK)
+    public List<GameImageDTO> getImages(@PathVariable("id") Integer gameId, @RequestParam(defaultValue = "all") String type) {
+        return gameService.getGamesImages(gameId, type);
+    }
+
     @GetMapping("/{id}/reviews")
     @ResponseStatus(HttpStatus.OK)
     public Pages getAllReviewsForGame(@RequestParam(name = "page", defaultValue = "1") Integer page,

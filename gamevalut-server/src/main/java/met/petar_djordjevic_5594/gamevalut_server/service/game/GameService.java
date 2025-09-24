@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -300,6 +301,14 @@ public class GameService {
         });
 
         return games;
+    }
+
+    public List<GameImageDTO> getGamesImages(Integer gameId, String type) {
+
+        Game game = this.getGameById(gameId);
+        List<GameImage> images = type.equals("all") ? game.getImages() : game.getImages().stream().filter(gameImage -> gameImage.getType().getDisplayName().equalsIgnoreCase(type)).collect(Collectors.toList());
+
+        return images.stream().map(gameImage -> gameImage.toDTO()).collect(Collectors.toList());
     }
 
     public Pages getAll(Integer page, Integer limit, String title) {

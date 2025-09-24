@@ -61,4 +61,8 @@ public class GameImage {
     public void setGame(Game game) {
         this.game = game;
     }
+
+    public GameImageDTO toDTO() {
+        return new GameImageDTO(this.id, this.type, this.url);
+    }
 }
