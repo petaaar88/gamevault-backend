@@ -19,7 +19,7 @@ public interface ICustomUserRepository extends JpaRepository<CustomUser, Integer
     @Query(value = "SELECT * FROM user WHERE username LIKE %:username% ", nativeQuery = true)
     Optional<List<CustomUser>> findByUsername(@Param("username")String username);
 
-    @Query(value = "SELECT * FROM user WHERE BINARY username LIKE %:username% AND BINARY password LIKE %:password%", nativeQuery = true)
+    @Query(value = "SELECT * FROM user WHERE BINARY username=%:username% AND BINARY password=%:password%", nativeQuery = true)
     Optional<CustomUser> findByCredentials(@Param("username")String username, @Param("password")String password);
 
     @Query(value = "SELECT * FROM user WHERE username LIKE :username ", nativeQuery = true)
