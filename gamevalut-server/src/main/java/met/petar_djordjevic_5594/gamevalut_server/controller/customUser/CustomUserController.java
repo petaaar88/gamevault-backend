@@ -47,7 +47,7 @@ public class CustomUserController {
     }
 
     @PostMapping("/register")
-    private FriendDTO register(@Valid @ModelAttribute NewCustomUserDTO newCustomUserDTO) {
+    private ResponseEntity<LoginResponse> register(@Valid @ModelAttribute NewCustomUserDTO newCustomUserDTO) {
         return  userService.createUser(newCustomUserDTO);
     }
 

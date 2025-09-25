@@ -112,13 +112,13 @@ public class CustomUserService {
 
     }
 
-    public FriendDTO createUser(NewCustomUserDTO newCustomUserDTO){
+    public ResponseEntity<LoginResponse> createUser(NewCustomUserDTO newCustomUserDTO){
 
         userRepository.findUserByUniqueUsername(newCustomUserDTO.username()).ifPresent(user -> {
             throw new DataIntegrityViolationException("Username already exists!");
         });
 
-        CustomUser user = new CustomUser(newCustomUserDTO.username(), newCustomUserDTO.password());
+        CustomUser user = new CustomUser(newCustomUserDTO.username(), passwordEncoder.encode(newCustomUserDTO.password()));
         user.setCreatedAt(LocalDate.now());
         user.setRole(CustomUserRole.USER);
         userRepository.save(user);
@@ -159,7 +159,22 @@ public class CustomUserService {
 
         userRepository.save(newUser);
 
-        return new FriendDTO(newUser.getId(), newUser.getUsername(), newUser.getImageUrl(), null, null);
+        String jwt = jwtUtil.generateToken(
+                user.getUsername(),
+                user.getRole().name()
+        );
+
+        LoginResponse loginResponse = new LoginResponse(
+                jwt,
+                user.getId(),
+                user.getUsername(),
+                user.getRole().name(),
+                user.getImageUrl(),
+                user.getDescription()
+        );
+
+        return ResponseEntity.ok(loginResponse);
+
     }
 
     public CustomUser getUserById(Integer userId) {
