@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -34,8 +35,15 @@ public class CustomUserController {
     CustomUserService userService;
 
     @PostMapping("/login")
-    private FriendDTO login(@Valid @RequestBody LoginUserDTO loginUserDTO) {
-        return userService.loginUser(loginUserDTO);
+    private ResponseEntity<?> login(@Valid @RequestBody LoginUserDTO loginUserDTO) {
+        try{
+
+            return userService.loginUser(loginUserDTO);
+        } catch ( BadCredentialsException e ) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("message", "Wrong username or password!");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+        }
     }
 
     @PostMapping("/register")

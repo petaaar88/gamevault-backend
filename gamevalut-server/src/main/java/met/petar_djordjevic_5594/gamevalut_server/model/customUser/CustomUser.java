@@ -53,6 +53,8 @@ public class CustomUser {
     public CustomUser(String username, String password) {
         this.username = username;
         this.password = password;
+        this.role = CustomUserRole.USER;
+        this.createdAt = LocalDate.now();
     }
 
     public CustomUser(String username, String password, String description, String imageUrl, LocalDate createdAt) {
@@ -60,6 +62,7 @@ public class CustomUser {
         this.password = password;
         this.description = description;
         this.imageUrl = imageUrl;
+        this.role = CustomUserRole.USER;
         this.createdAt = createdAt;
     }
 

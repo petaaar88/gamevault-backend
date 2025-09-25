@@ -13,6 +13,7 @@ import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.ICustomU
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IFriendCommentRepostiory;
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IFriendRequestRepository;
 import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IFriendshipRepository;
+import met.petar_djordjevic_5594.gamevalut_server.security.JwtUtil;
 import met.petar_djordjevic_5594.gamevalut_server.service.aws.AWSBucketService;
 import met.petar_djordjevic_5594.gamevalut_server.service.notification.FriendRequestNotificationService;
 import met.petar_djordjevic_5594.gamevalut_server.service.notification.UserOnlineNotificationService;
@@ -21,6 +22,11 @@ import met.petar_djordjevic_5594.gamevalut_server.utils.Paginator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,23 +61,55 @@ public class CustomUserService {
     @Value("${aws.buckets.profileimage.name}")
     private String userProfileImagesBucketName;
 
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public CustomUserService() {
     }
 
-    public FriendDTO loginUser(LoginUserDTO loginUserDTO) {
+    public ResponseEntity<LoginResponse> loginUser(LoginUserDTO loginUserDTO) {
 
-        CustomUser user = userRepository.findByCredentials(loginUserDTO.username(), loginUserDTO.password()).orElseThrow(() -> new NoSuchElementException("Wrong username or password!"));
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginUserDTO.username(),
+                        loginUserDTO.password()
+                )
+        );
+
+        CustomUser user = userRepository.findByOneUsername(loginUserDTO.username()).orElseThrow(() -> new NoSuchElementException("Wrong username or password!"));
 
         System.out.println("Prijavlej je korisnik sa ID:" + user.getId() + ", username: " + user.getUsername());
-
-        //TODO: prepravi logiku i izbrisi ovo
         redisService.saveToRedis(user.getId().toString(), "username", user.getUsername());
-
         List<CustomUser> onlineFriends = this.getOnlineFriends(user.getId());
 
         userOnlineNotificationService.notifyOnlineFriends(user, onlineFriends);
-        return new FriendDTO(user.getId(), user.getUsername(), user.getImageUrl(), null, null);
+
+        String jwt = jwtUtil.generateToken(
+                user.getUsername(),
+                user.getRole().name()
+        );
+
+        LoginResponse loginResponse = new LoginResponse(
+                jwt,
+                user.getId(),
+                user.getUsername(),
+                user.getRole().name(),
+                user.getImageUrl(),
+                user.getDescription()
+        );
+
+        return ResponseEntity.ok(loginResponse);
+
+
+
+        //TODO: prepravi logiku i izbrisi ovo
+
     }
 
     public FriendDTO createUser(NewCustomUserDTO newCustomUserDTO){
@@ -82,7 +120,7 @@ public class CustomUserService {
 
         CustomUser user = new CustomUser(newCustomUserDTO.username(), newCustomUserDTO.password());
         user.setCreatedAt(LocalDate.now());
-        user.setRole(CustomUserRole.Common);
+        user.setRole(CustomUserRole.USER);
         userRepository.save(user);
 
         CustomUser newUser = userRepository.findUserByUniqueUsername(newCustomUserDTO.username()).get();

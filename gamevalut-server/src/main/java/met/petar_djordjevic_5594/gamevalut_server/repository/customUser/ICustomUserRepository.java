@@ -12,6 +12,9 @@ import java.util.Optional;
 
 public interface ICustomUserRepository extends JpaRepository<CustomUser, Integer> {
 
+    @Query(value = "SELECT * FROM user WHERE username=%:username% ", nativeQuery = true)
+    Optional<CustomUser> findByOneUsername(@Param("username")String username);
+
 
     @Query(value = "SELECT user.* FROM users_friends JOIN user ON user.id = users_friends.user_id1 WHERE user_id = :userId\n ", nativeQuery = true)
     Optional<List<CustomUser>> findAllFriends(@Param("userId")Integer userId);
