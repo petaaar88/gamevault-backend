@@ -42,7 +42,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-                // CSRF konfiguracija - onemogućeno za stateless JWT
+                // CSRF konfiguracija
                 .csrf(csrf -> csrf.disable())
 
                 // CORS konfiguracija
@@ -54,9 +54,9 @@ public class SecurityConfig {
 
                 // Autorizacija zahteva
                 .authorizeHttpRequests(auth -> auth
-                        // Javni endpoint-i (nezaštićeni)
+                        // Javni endpoint-i
                         .requestMatchers("/login", "/register").permitAll()
-
+                        .requestMatchers("/ws/**").permitAll()
                         // Admin-only endpoint-i (POST metode)
                         .requestMatchers(HttpMethod.POST, "/games").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/games/genres").hasRole("ADMIN")
