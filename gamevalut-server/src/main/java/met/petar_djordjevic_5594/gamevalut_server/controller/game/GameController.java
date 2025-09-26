@@ -41,6 +41,14 @@ public class GameController {
         return gameService.getAll(page, limit, title);
     }
 
+    @GetMapping("/unpublished")
+    @ResponseStatus(HttpStatus.OK)
+    public Pages getAllUnpublished(@RequestParam(name = "page", defaultValue = "1") Integer page,
+                        @RequestParam(name = "limit", defaultValue = "6") Integer limit,
+                        @RequestParam(name = "title", defaultValue = "") String title) {
+        return gameService.getAllUnpublished(page, limit, title);
+    }
+
     @GetMapping("/{id}/images")
     @ResponseStatus(HttpStatus.OK)
     public List<GameImageDTO> getImages(@PathVariable("id") Integer gameId, @RequestParam(defaultValue = "all") String type) {

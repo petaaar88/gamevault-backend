@@ -319,7 +319,7 @@ public class GameService {
 
         Integer offset = (page - 1) * limit;
 
-        gameRepository.findByFilterAndPaginate(limit, offset, title).get().forEach(game -> {
+        gameRepository.findByFilterAndPaginate(limit, offset, title, true).get().forEach(game -> {
             if (game.getOverallRatingPercentage() != null) {
                 Double zaokruzen = Double.parseDouble(String.format("%.2f", game.getOverallRatingPercentage()));
                 game.setOverallRatingPercentage(zaokruzen);
@@ -329,7 +329,22 @@ public class GameService {
         });
 
 
-        return Paginator.getResoultAndPages(page, limit, gameRepository.countFindByFilterAndPaginate(title), games);
+        return Paginator.getResoultAndPages(page, limit, gameRepository.countFindByFilterAndPaginate(title, true), games);
+    }
+
+    public Pages getAllUnpublished(Integer page, Integer limit, String title) {
+
+        Paginator.validatePageAndLimit(page, limit);
+
+        List<GameOverviewDTO> games = new ArrayList<>();
+
+        Integer offset = (page - 1) * limit;
+
+        gameRepository.findByFilterAndPaginate(limit, offset, title, false).get().forEach(game -> {
+            games.add(this.convertToOverviewDTO(game));
+        });
+
+        return Paginator.getResoultAndPages(page, limit, gameRepository.countFindByFilterAndPaginate(title, false), games);
     }
 
     public List<GameProductPageImage> getProductPageImages(Integer gameId) {
@@ -595,9 +610,9 @@ public class GameService {
         Map<String, String> rating = new HashMap<>();
         rating.put("rating", (game.getOverallRating() != null) ? game.getOverallRating().getValue() : null);
         rating.put("rating_percentage", (game.getOverallRatingPercentage() != null) ? game.getOverallRatingPercentage().toString() : null);
-        rating.put("reviews", game.getNumberOfReviews().toString());
-        GameImage gameImage = game.getImages().stream().filter(gameImage1 -> gameImage1.getType() == GameImageType.Catalog).findFirst().get();
-        return new GameOverviewDTO(game.getId(), game.getTitle(), gameImage.getUrl(), game.getNumberOfAcquisitions(), game.getDeveloper(), rating);
+        rating.put("reviews", (game.getNumberOfReviews() != null) ? game.getNumberOfReviews().toString() : null);
+        GameImage gameImage = game.getImages().stream().filter(gameImage1 -> gameImage1.getType() == GameImageType.Catalog).findFirst().orElse(null);
+        return new GameOverviewDTO(game.getId(), game.getTitle(), (gameImage != null ? gameImage.getUrl() : null), game.getNumberOfAcquisitions(), game.getDeveloper(), rating);
     }
 
 }
