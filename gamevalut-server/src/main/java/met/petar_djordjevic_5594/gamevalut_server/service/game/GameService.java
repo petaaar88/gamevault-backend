@@ -47,6 +47,9 @@ public class GameService {
     @Value("${aws.buckets.gamefiles.name}")
     private String gameFilesBucketName;
 
+    @Value("${aws.buckets.gameImages.name}")
+    private String gameImagesBucketName;
+
     @Autowired
     AWSBucketService awsBucketService;
     private Genre newGenre;
@@ -182,7 +185,40 @@ public class GameService {
 
         Game game = this.getGameById(gameId);
 
-        GameImage gameImage = new GameImage(imageType, newGameImageDTO.url());
+        GameImage gameImage;
+
+        try {
+            File tempFile = File.createTempFile("upload_", newGameImageDTO.image().getOriginalFilename().replaceAll(" ", ""));
+            newGameImageDTO.image().transferTo(tempFile);
+
+            String originalFilename = newGameImageDTO.image().getOriginalFilename();
+            String extension = "";
+            if (originalFilename != null && originalFilename.contains(".")) {
+                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            }
+
+            String safeTitle = game.getTitle().replaceAll("\\s+", "_");
+
+            String fileName = originalFilename.replaceAll("\\s+", "_");
+
+            String s3Key = safeTitle + "/" + fileName;
+
+            awsBucketService.postObjectIntoBucket(gameImagesBucketName, s3Key, tempFile);
+
+            tempFile.delete();
+
+            String newImageUrl = "https://" + gameImagesBucketName + ".s3.amazonaws.com/" + s3Key;
+
+            gameImage = new GameImage(imageType, newImageUrl);
+
+        } catch (AmazonServiceException e) {
+            throw new ServerErrorException("Server Error");
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            throw new ServerErrorException("Server Error");
+        }
+
+
 
         gameImage.setGame(game);
 
@@ -683,6 +719,12 @@ public class GameService {
         game.getGenres().clear();
         String fileName = game.getDownloadUrl().substring(game.getDownloadUrl().lastIndexOf("/") + 1);
         String fileNameWithoutExt = fileName.substring(0, fileName.lastIndexOf("."));
+
+        List<GameImage> imagesOfGame = game.getImages();
+
+        imagesOfGame.forEach(gameImage -> {
+            awsBucketService.deleteObjectFromBucket(gameImagesBucketName, fileNameWithoutExt + "/" + gameImage.getUrl().substring(gameImage.getUrl().lastIndexOf("/") + 1));
+        });
 
         gameRepository.delete(game);
 
