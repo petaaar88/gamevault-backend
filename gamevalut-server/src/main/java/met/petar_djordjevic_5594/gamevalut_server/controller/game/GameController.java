@@ -136,8 +136,8 @@ public class GameController {
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public void createGame(@Valid @RequestBody NewGameDTO newGameDTO) {
-        gameService.addGame(gameService.convertToEntity(newGameDTO));
+    public void createGame(@Valid @ModelAttribute NewGameDTO newGameDTO) {
+        gameService.addGame(newGameDTO);
     }
 
     @PostMapping("/genres")

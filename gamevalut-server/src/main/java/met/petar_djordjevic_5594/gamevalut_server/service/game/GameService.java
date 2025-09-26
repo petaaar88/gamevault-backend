@@ -1,6 +1,8 @@
 package met.petar_djordjevic_5594.gamevalut_server.service.game;
 
+import com.amazonaws.AmazonServiceException;
 import met.petar_djordjevic_5594.gamevalut_server.exception.ResourceNotFoundException;
+import met.petar_djordjevic_5594.gamevalut_server.exception.ServerErrorException;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.FriendDTO;
 import met.petar_djordjevic_5594.gamevalut_server.model.game.AcquiredGameCopy;
 import met.petar_djordjevic_5594.gamevalut_server.model.customUser.CustomUser;
@@ -10,13 +12,17 @@ import met.petar_djordjevic_5594.gamevalut_server.repository.customUser.IAcquire
 import met.petar_djordjevic_5594.gamevalut_server.repository.game.IGameRepository;
 import met.petar_djordjevic_5594.gamevalut_server.repository.game.IGameReviewRepository;
 import met.petar_djordjevic_5594.gamevalut_server.repository.game.IGenreRepository;
+import met.petar_djordjevic_5594.gamevalut_server.service.aws.AWSBucketService;
 import met.petar_djordjevic_5594.gamevalut_server.service.customUser.CustomUserService;
 import met.petar_djordjevic_5594.gamevalut_server.utils.Paginator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.*;
@@ -38,6 +44,12 @@ public class GameService {
     @Autowired
     CustomUserService userService;
 
+    @Value("${aws.buckets.gamefiles.name}")
+    private String gameFilesBucketName;
+
+    @Autowired
+    AWSBucketService awsBucketService;
+
 
     public GameService() {
     }
@@ -52,12 +64,50 @@ public class GameService {
         genreRepository.save(newGenre);
     }
 
-    public void addGame(Game newGame) {
+    public void addGame(NewGameDTO newGameDTO) {
 
-        Optional<Game> optionalGame = gameRepository.findByTitle(newGame.getTitle());
+        Optional<Game> optionalGame = gameRepository.findByTitle(newGameDTO.title());
 
         if (optionalGame.isPresent())
             throw new DataIntegrityViolationException("Game with this title already exists!");
+
+        Game newGame = new Game();
+
+        try {
+            File tempFile = File.createTempFile("upload_", newGameDTO.title().replaceAll(" ", ""));
+            newGameDTO.gameFiles().transferTo(tempFile);
+
+            String originalFilename = newGameDTO.gameFiles().getOriginalFilename();
+            String extension = "";
+            if (originalFilename != null && originalFilename.contains(".")) {
+                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            }
+
+            String safeTitle = newGameDTO.title().replaceAll("\\s+", "_");
+
+            String fileName = safeTitle + extension;
+
+            String s3Key = safeTitle + "/" + fileName;
+
+            awsBucketService.postObjectIntoBucket(gameFilesBucketName, s3Key, tempFile);
+
+            tempFile.delete();
+
+            String newGameFilesUrl = "https://" + gameFilesBucketName + ".s3.amazonaws.com/" + s3Key;
+            newGame.setDownloadUrl(newGameFilesUrl);
+
+        } catch (AmazonServiceException e) {
+            throw new ServerErrorException("Server Error");
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            throw new ServerErrorException("Server Error");
+        }
+
+        newGame.setTitle(newGameDTO.title());
+        newGame.setDescription(newGameDTO.description());
+        newGame.setDeveloper(newGameDTO.developer());
+        newGame.setReleaseDate(newGameDTO.releaseDate());
+
 
         newGame.setNumberOfAcquisitions(BigInteger.ZERO);
         newGame.setNumberOfReviews(BigInteger.ZERO);
@@ -596,10 +646,6 @@ public class GameService {
         return optionalGame.get();
     }
 
-
-    public Game convertToEntity(NewGameDTO newGameDTO) {
-        return new Game(newGameDTO.description(), newGameDTO.developer(), newGameDTO.downloadUrl(), newGameDTO.releaseDate(), newGameDTO.title());
-    }
 
     public GameSystemRequirements convertSystemRequirementsToEntity(NewGameSystemRequirementsDTO
                                                                             newGameSystemRequirementsDTO, GameSystemRequirementsType type) {
