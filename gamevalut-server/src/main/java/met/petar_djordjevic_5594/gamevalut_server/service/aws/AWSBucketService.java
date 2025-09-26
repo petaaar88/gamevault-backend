@@ -15,4 +15,8 @@ public class AWSBucketService {
     public void postObjectIntoBucket(String bucketName, String objectName, File fileToUpload)throws AmazonServiceException {
         s3Client.putObject(bucketName,objectName,fileToUpload);
     }
+
+    public void deleteObjectFromBucket(String bucketName, String objectName) throws AmazonServiceException {
+        s3Client.deleteObject(bucketName, objectName);
+    }
 }

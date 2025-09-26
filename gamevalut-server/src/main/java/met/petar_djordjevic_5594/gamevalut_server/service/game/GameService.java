@@ -355,6 +355,8 @@ public class GameService {
         return games;
     }
 
+    public List<GenreDTO> getAllGenres() { return genreRepository.findAll().stream().map(Genre::toDTO).collect(Collectors.toList()); }
+
     public List<GameImageDTO> getGamesImages(Integer gameId, String type) {
 
         Game game = this.getGameById(gameId);
@@ -671,6 +673,20 @@ public class GameService {
             throw new NoSuchElementException("Game not found!");
 
         return optionalGame.get();
+    }
+
+    @Transactional
+    public void deleteUnpublishedGame(Integer gameId) {
+        Game game = this.getGameById(gameId);
+
+        game.getGenres().forEach(genre -> genre.getGames().remove(game));
+        game.getGenres().clear();
+        String fileName = game.getDownloadUrl().substring(game.getDownloadUrl().lastIndexOf("/") + 1);
+        String fileNameWithoutExt = fileName.substring(0, fileName.lastIndexOf("."));
+
+        gameRepository.delete(game);
+
+        awsBucketService.deleteObjectFromBucket(gameFilesBucketName, fileNameWithoutExt + "/" + fileName);
     }
 
 

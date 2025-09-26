@@ -41,6 +41,12 @@ public class GameController {
         return gameService.getAll(page, limit, title);
     }
 
+    @GetMapping("/genres")
+    @ResponseStatus(HttpStatus.OK)
+    public List<GenreDTO> getAllGenres() {
+        return gameService.getAllGenres();
+    }
+
     @GetMapping("/unpublished")
     @ResponseStatus(HttpStatus.OK)
     public Pages getAllUnpublished(@RequestParam(name = "page", defaultValue = "1") Integer page,
@@ -198,6 +204,12 @@ public class GameController {
     @ResponseStatus(HttpStatus.OK)
     public boolean hasFriendsThatOwnGame(@PathVariable("userId") Integer userId, @PathVariable("gameId") Integer gameId) {
         return gameService.hasFriendsThatOwnGame(gameId, userId);
+    }
+
+    @DeleteMapping("/unpublished/{id}/delete")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUnpublishedGame(@PathVariable("id") Integer gameId) {
+        gameService.deleteUnpublishedGame(gameId);
     }
 
 

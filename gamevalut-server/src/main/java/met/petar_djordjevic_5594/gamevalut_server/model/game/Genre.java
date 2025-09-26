@@ -52,4 +52,8 @@ public class Genre {
     public void setGames(List<Game> games) {
         this.games = games;
     }
+
+    public GenreDTO toDTO() {
+        return new GenreDTO(this.id, this.name);
+    }
 }

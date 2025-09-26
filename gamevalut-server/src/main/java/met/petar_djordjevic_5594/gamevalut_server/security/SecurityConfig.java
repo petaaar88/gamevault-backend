@@ -66,6 +66,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/games/{gameId}/image").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/games/unpublished").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/games/unpublished/{gameId}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/games/unpublished/{id}/delete").hasRole("ADMIN")
 
                         // Sve ostale rute zahtevaju autentifikaciju (USER ili ADMIN)
                         .anyRequest().authenticated()
