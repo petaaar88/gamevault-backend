@@ -49,12 +49,14 @@ public class GameService {
 
     @Autowired
     AWSBucketService awsBucketService;
+    private Genre newGenre;
 
 
     public GameService() {
     }
 
     public void addGenre(Genre newGenre) {
+        this.newGenre = newGenre;
 
         Optional<Genre> optionalGenre = genreRepository.findByName(newGenre.getName());
 
@@ -395,6 +397,31 @@ public class GameService {
         });
 
         return Paginator.getResoultAndPages(page, limit, gameRepository.countFindByFilterAndPaginate(title, false), games);
+    }
+
+    public UnpublishedGameDTO getUnpublishedGameData(Integer gameId) {
+
+        Game game = this.getGameById(gameId);
+
+        if (game.getPublished().booleanValue() == true)
+            throw new NoSuchElementException("Game not found!");
+
+        Optional<List<GameSystemRequirements>> optionalGameSystemRequirements = gameRepository.findSystemRequirementsOfGame(gameId);
+
+
+        GameSystemRequirements minimum = optionalGameSystemRequirements.get().stream().filter(systemRequirements -> systemRequirements.getType() == GameSystemRequirementsType.Minimum).findFirst().orElse(null);
+        GameSystemRequirements recommended = optionalGameSystemRequirements.get().stream().filter(systemRequirements -> systemRequirements.getType() == GameSystemRequirementsType.Recommended).findFirst().orElse(null);
+
+        NewGameSystemRequirementsDTO minDTO = minimum == null ? null : new NewGameSystemRequirementsDTO(minimum.getCpu(), minimum.getGpu(), minimum.getExpectedStorage(), minimum.getStorage(), minimum.getOperatingSystem(), minimum.getRam());
+        NewGameSystemRequirementsDTO reqDTO = recommended == null ? null : new NewGameSystemRequirementsDTO(recommended.getCpu(), recommended.getGpu(), recommended.getExpectedStorage(), recommended.getStorage(), recommended.getOperatingSystem(), recommended.getRam());
+
+        List<String> genres = (game.getGenres() == null || game.getGenres().isEmpty())
+                ? null
+                : game.getGenres().stream()
+                .map(genre -> genre.getName())
+                .collect(Collectors.toList());
+
+        return new UnpublishedGameDTO(game.getTitle(), game.getDescription(), genres, game.getDeveloper(), game.getReleaseDate().toString(), new GameSystemRequirementsDTO(minDTO, reqDTO));
     }
 
     public List<GameProductPageImage> getProductPageImages(Integer gameId) {
