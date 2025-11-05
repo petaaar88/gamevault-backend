@@ -1,0 +1,160 @@
+{
+	"info": {
+		"_postman_id": "3c302198-b8dc-4ca0-aa94-3edfdd40c890",
+		"name": "User Profile",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30377365"
+	},
+	"item": [
+		{
+			"name": "User Profile",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/profile/{{userId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"profile",
+						"{{userId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Recent Played Games",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/profile/games/{{userId}}?page={{page}}&limit={{llimit}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"profile",
+						"games",
+						"{{userId}}"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "{{page}}"
+						},
+						{
+							"key": "limit",
+							"value": "{{llimit}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Friends Comments",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/profile/comments/{{userId}}?page={{page}}&limit={{limit}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"profile",
+						"comments",
+						"{{userId}}"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "{{page}}"
+						},
+						{
+							"key": "limit",
+							"value": "{{limit}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Comment To Friend",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"content\": \"ZNa kao ono\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/profile/comments/{{userId}}/{{friendId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"profile",
+						"comments",
+						"{{userId}}",
+						"{{friendId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit User's Profile",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "username",
+							"value": "Petar",
+							"type": "text"
+						},
+						{
+							"key": "description",
+							"value": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseUrl}}/profile/{{userId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"profile",
+						"{{userId}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

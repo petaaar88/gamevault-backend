@@ -1,0 +1,986 @@
+{
+	"info": {
+		"_postman_id": "6c78ef56-b321-49f1-a07b-ef819de816b6",
+		"name": "Games",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30377365"
+	},
+	"item": [
+		{
+			"name": "Create New Game",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJQZXRhciIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc1ODg4MzE2MywiZXhwIjoxNzU4OTY5NTYzfQ.yIXTA36lLtzRsPgregPTCPP80zDPkNgYigQsiFenXGk",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "title",
+							"value": "Nova igra",
+							"type": "text"
+						},
+						{
+							"key": "developer",
+							"value": "develoer",
+							"type": "text"
+						},
+						{
+							"key": "description",
+							"value": "deskcipija",
+							"type": "text"
+						},
+						{
+							"key": "releaseDate",
+							"value": "2020-12-12",
+							"type": "text"
+						},
+						{
+							"key": "gameFiles",
+							"type": "file",
+							"src": "tpc5De3i_/small-wooden-blocks-texture.zip"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseUrl}}/games",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create New Genre",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\":\"Simulation\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/games/genres",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games",
+						"genres"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Genre To Game",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/games/{{gameId}}/genres/{{genreId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games",
+						"{{gameId}}",
+						"genres",
+						"{{genreId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Image",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"type\":\"catalog\",\r\n    \"url\":\"http://s3.aws.com/slika1.jpg\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/games/{{gameId}}/image",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games",
+						"{{gameId}}",
+						"image"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add System Requirements To Game",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"cpu\":\"Intel\",\r\n    \"gpu\":\"RAdeo\",\r\n    \"ram\":12,\r\n    \"expectedStorage\":123,\r\n    \"storage\":12,\r\n    \"operatingSystem\":\"Windows 11\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/games/{{gameId}}/system-requirements?type={{type}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games",
+						"{{gameId}}",
+						"system-requirements"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "{{type}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Publish Game",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/games/publish/{{gameId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games",
+						"publish",
+						"{{gameId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All Games",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJNaWxhbiIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzU4ODc5MzMyLCJleHAiOjE3NTg5NjU3MzJ9.gqhhWrljv4jQWFajjkEdEMh8KKjYjKvqpaOnYgiX_u8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/games?page={{page}}&limit={{limit}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "{{page}}"
+						},
+						{
+							"key": "limit",
+							"value": "{{limit}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All Genres",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJNaWxhbiIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzU4ODc5MzMyLCJleHAiOjE3NTg5NjU3MzJ9.gqhhWrljv4jQWFajjkEdEMh8KKjYjKvqpaOnYgiX_u8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/games/genres",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games",
+						"genres"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All Games With Title Parameter",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/games?page={{page}}&limit={{limit}}&title={{title}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "{{page}}"
+						},
+						{
+							"key": "limit",
+							"value": "{{limit}}"
+						},
+						{
+							"key": "title",
+							"value": "{{title}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All Unpublished Games",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJNaWxhbiIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzU4ODc5MzMyLCJleHAiOjE3NTg5NjU3MzJ9.gqhhWrljv4jQWFajjkEdEMh8KKjYjKvqpaOnYgiX_u8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/games/unpublished?page={{page}}&limit={{limit}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games",
+						"unpublished"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "{{page}}"
+						},
+						{
+							"key": "limit",
+							"value": "{{limit}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All Unpublished Games Data",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJQZXRhciIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc1ODg5NTQ1NSwiZXhwIjoxNzU4OTgxODU1fQ.ip0QoTcZ-eGYL3yGnspr47OmC6g9HPlfnGGkOuLTLZM",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/games/unpublished/{{gameId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games",
+						"unpublished",
+						"{{gameId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All Product Page Images Of Game",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/games/{{id}}/pp-images",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games",
+						"{{id}}",
+						"pp-images"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All Images of Game",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/games/{{id}}/pp-images",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games",
+						"{{id}}",
+						"pp-images"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Game Description For Product Page",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/games/{{id}}/description",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games",
+						"{{id}}",
+						"description"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Game Download URL",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/games/{{id}}/download",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games",
+						"{{id}}",
+						"download"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Overall Rating",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/games/{{id}}/overal-rating",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games",
+						"{{id}}",
+						"overal-rating"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "System Requirements",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/games/{{id}}/system-requirements",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games",
+						"{{id}}",
+						"system-requirements"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Does User Have Game",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/games/{{userId}}/{{gameId}}/has-game",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games",
+						"{{userId}}",
+						"{{gameId}}",
+						"has-game"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Does User Have Review On Game",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/games/{{gameId}}/{{userId}}/has-review",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games",
+						"{{gameId}}",
+						"{{userId}}",
+						"has-review"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Friends That Play Game",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/games/{{gameId}}/{{userId}}/friends",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games",
+						"{{gameId}}",
+						"{{userId}}",
+						"friends"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Does User Have Friends That Play Game",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/games/{{userId}}/{{gameId}}/has-friends-that-own-game",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games",
+						"{{userId}}",
+						"{{gameId}}",
+						"has-friends-that-own-game"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Does game have reviews",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/games/{{id}}/has-reviews",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games",
+						"{{id}}",
+						"has-reviews"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Review",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"rating\":\"Positive\",\r\n    \"content\":\"Best Game Ever\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/games/{{gameId}}/{{userId}}/reviews",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games",
+						"{{gameId}}",
+						"{{userId}}",
+						"reviews"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Reviews",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/games/{{id}}/reviews?page={{page}}&limit={{limit}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games",
+						"{{id}}",
+						"reviews"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "{{page}}"
+						},
+						{
+							"key": "limit",
+							"value": "{{limit}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All User Games",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/games/collection/{{userId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games",
+						"collection",
+						"{{userId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User Game",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\":\"GTA V\",\r\n    \"description\":\"asdfa\",\r\n    \"developer\":\"Rocstar\",\r\n    \"downloadUrl\":\"http://s3.aws.com/igrica.zip\",\r\n    \"releaseDate\":\"2021-03-02\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/games/collection/{{userId}}/{{gameId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games",
+						"collection",
+						"{{userId}}",
+						"{{gameId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User Game",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/games/{{gameId}}/{{userId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games",
+						"{{gameId}}",
+						"{{userId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update User Game Playtime",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"timePlayed\":123,\r\n    \"lastPlayedAt\":\"2021-03-02 19:00:00\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/games/collection/{{userId}}/{{gameId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games",
+						"collection",
+						"{{userId}}",
+						"{{gameId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Play Game",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\":\"GTA V\",\r\n    \"description\":\"asdfa\",\r\n    \"developer\":\"Rocstar\",\r\n    \"downloadUrl\":\"http://s3.aws.com/igrica.zip\",\r\n    \"releaseDate\":\"2021-03-02\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/play/{{userId}}/{{gameId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"play",
+						"{{userId}}",
+						"{{gameId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Exit Game",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\":\"GTA V\",\r\n    \"description\":\"asdfa\",\r\n    \"developer\":\"Rocstar\",\r\n    \"downloadUrl\":\"http://s3.aws.com/igrica.zip\",\r\n    \"releaseDate\":\"2021-03-02\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/play/{{userId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"play",
+						"{{userId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Unpublished Game",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\":\"GTA V\",\r\n    \"description\":\"asdfa\",\r\n    \"developer\":\"Rocstar\",\r\n    \"downloadUrl\":\"http://s3.aws.com/igrica.zip\",\r\n    \"releaseDate\":\"2021-03-02\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/games/unpublished/{{gameId}}/delete",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"games",
+						"unpublished",
+						"{{gameId}}",
+						"delete"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

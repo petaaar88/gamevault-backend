@@ -1,0 +1,216 @@
+{
+	"info": {
+		"_postman_id": "8e60bf3c-dd74-42ad-9235-c7cd5b0c138c",
+		"name": "User",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30377365"
+	},
+	"item": [
+		{
+			"name": "Search Users",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/search/{{userId}}?username={{username}}&page={{page}}&limit={{limit}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"search",
+						"{{userId}}"
+					],
+					"query": [
+						{
+							"key": "username",
+							"value": "{{username}}"
+						},
+						{
+							"key": "page",
+							"value": "{{page}}"
+						},
+						{
+							"key": "limit",
+							"value": "{{limit}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Does User Have Friends",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/does-have-friends/{{userId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"does-have-friends",
+						"{{userId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Does User Have Comments On Profile",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/does-have-comments/{{userId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"does-have-comments",
+						"{{userId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Does User Posted Comment On Friend Profile",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/does-user-post-comment/{{userId}}/{{friendId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"does-user-post-comment",
+						"{{userId}}",
+						"{{friendId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User Relationship With Other User",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/relationship/{{userId}}/{{freindId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"relationship",
+						"{{userId}}",
+						"{{freindId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Logout",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/logout/{{userId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"logout",
+						"{{userId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register User",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "username",
+							"value": "Petar",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "12341",
+							"type": "text"
+						},
+						{
+							"key": "profileImage",
+							"contentType": "",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseUrl}}/register",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All User's Friends",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/friends/{{userId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"friends",
+						"{{userId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login User",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\":\"Petar\",\r\n    \"password\":\"1234\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
