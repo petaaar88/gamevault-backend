@@ -133,7 +133,7 @@ VITE_API_URL=<backend_url_accessible_from_browser>
 
 ### Run
 ```bash
-docker compose up -d
+docker compose --env-file .env.docker up -d
 ```
 
 The backend will wait for MySQL and Redis to be healthy before starting. Logs can be followed with:
