@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 
 
 @Service
-public class GameService {
+public class GameService  {
 
     @Autowired
     IAcquiredGameCopyRepository acquiredGameCopyRepository;

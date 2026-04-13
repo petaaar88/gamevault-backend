@@ -13,6 +13,7 @@ This system consists of three parts: Backend (this repository), ["Desktop Client
   - [Prerequisites](#prerequisites)
   - [Configuration](#configuration)
 - [Run (Development)](#run-development)
+- [Containerization (Docker)](#containerization-docker)
 - [RESTful API Overview](#restful-api-overview)
   - [Auth](#auth)
   - [Users](#users)
@@ -87,6 +88,65 @@ mvn spring-boot:run
 ```
 Ensure MySQL and Redis are running.
 
+
+## Containerization (Docker)
+
+The entire stack (MySQL, Redis, Backend, Admin Client) can be run with Docker Compose.
+
+### Prerequisites
+- Docker and Docker Compose installed
+
+### Configuration
+1. Copy `.env.example.docker` to `.env.docker` and fill in the values:
+```
+AWS_GAME_FILES_BUCKET_NAME=<name_of_bucket>
+AWS_GAME_IMAGES_BUCKET_NAME=<name_of_image_bucket>
+AWS_USER_PROFILE_IMAGE_BUCKET_NAME=<name_of_user_profile_images_bucket>
+MY_AWS_ACCESS_KEY=<aws_access_key>
+MY_AWS_SECRET_KEY=<aws_secret_key>
+
+MYSQL_DB_NAME=<database_name>
+MYSQL_DATABASE_USERNAME=<user>
+MYSQL_DATABASE_PASSWORD=<password>
+MYSQL_ROOT_PASSWORD=<root_password>
+
+BACKEND_HOST_PORT=8080
+MYSQL_HOST_PORT=3306
+REDIS_HOST_PORT=6379
+
+ADMIN_CLIENT_HOST_PORT=80
+VITE_API_URL=<backend_url_accessible_from_browser>
+```
+
+2. Choose a DB dump file from the [`db-dump`](/db-dump) folder and set `DB_DUMP_FILE` to its filename (e.g. `structure_only_gamevault_db.sql`).
+
+3. Set `COMPOSE_PROJECT_NAME` to any name you like (e.g. `gamevault`).
+
+### Services
+
+| Service      | Image                                       | Default Port |
+|--------------|---------------------------------------------|--------------|
+| MySQL        | `mysql:8.0`                                 | 3306         |
+| Redis        | `redis:7-alpine`                            | 6379         |
+| Backend      | Built from `./gamevalut-server/Dockerfile`  | 8080         |
+| Admin Client | `petaaar/gamevault-admin-client:latest`     | 80           |
+
+### Run
+```bash
+docker compose up -d
+```
+
+The backend will wait for MySQL and Redis to be healthy before starting. Logs can be followed with:
+```bash
+docker compose logs -f
+```
+
+To stop and remove containers:
+```bash
+docker compose down
+```
+
+---
 
 ## RESTful API Overview
 ### Auth

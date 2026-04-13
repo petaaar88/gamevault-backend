@@ -30,8 +30,6 @@ import java.util.NoSuchElementException;
 public class CustomUserController {
 
     @Autowired
-    ICustomUserRepository userRepository;
-    @Autowired
     CustomUserService userService;
 
     @PostMapping("/login")
